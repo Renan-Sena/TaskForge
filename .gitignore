@@ -55,6 +55,7 @@ backend/check-*.js
 backend/reset-*.js
 backend/create-*.js
 backend/fix-*.js
+backend\src\models
 
 # Node lock opcional (normalmente mantém)
 
