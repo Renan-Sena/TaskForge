@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>TaskForge · Super Admin</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/superadmin.css">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Sora:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <!-- HEADER SUPER ADMIN -->
+    <header class="superadmin-header">
+        <div class="header-content">
+            <div class="logo-container">
+                <img src="assets/Taskgorge_logo1.webp" alt="TaskForge" class="logo-img" width="120" height="32">
+                <span class="badge badge-danger">SUPER ADMIN</span>
+            </div>
+
+            <!-- Menu Mobile -->
+            <button class="mobile-menu-btn" id="menuBtn" aria-label="Menu">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <!-- Navegação Desktop -->
+            <nav class="nav-dashboard" id="navDashboard">
+                <div class="nav-user">
+                    <!-- Botão de Emergência -->
+                    <button class="btn-emergency" id="quickEmergencyBtn" title="Ações de emergência">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span class="emergency-text">EMERGÊNCIA</span>
+                    </button>
+
+                    <!-- NOTIFICAÇÕES -->
+                    <div class="notifications-wrapper">
+                        <div class="notifications" id="notificationsBtn">
+                            <i class="far fa-bell"></i>
+                            <span class="notification-badge" style="display: none;">0</span>
+                        </div>
+                        <div class="notifications-dropdown" id="notificationsDropdown">
+                            <div class="notifications-header">
+                                <h3>Alertas do Sistema</h3>
+                                <button class="btn btn-sm btn-outline" id="markAllRead">Marcar todas</button>
+                            </div>
+                            <div class="notifications-list" id="notificationsList">
+                                <div class="empty-notifications">Nenhum alerta</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- USUÁRIO -->
+                    <div class="user-wrapper">
+                        <div class="user-menu" id="userMenu">
+                            <img src="" alt="Avatar" class="user-avatar" id="userAvatar">
+                            <div class="user-info">
+                                <span class="user-name" id="userName"></span>
+                                <span class="user-email" id="userEmail"></span>
+                                <span class="user-badge superadmin">SUPER ADMIN</span>
+                            </div>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="user-dropdown" id="userDropdown">
+                            <a href="#profile"><i class="fas fa-user-cog"></i> Meu Perfil</a>
+                            <a href="#security"><i class="fas fa-shield-alt"></i> Segurança</a>
+                            <a href="#audit"><i class="fas fa-history"></i> Auditoria</a>
+                            <hr>
+                            <a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                            <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Sair</a>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- SUPER ADMIN DASHBOARD -->
+    <main class="superadmin-dashboard">
+        <div class="superadmin-container">
+            <!-- Header -->
+            <div class="superadmin-header-content">
+                <div>
+                    <h1>Painel de Controle <span class="gradient-text">Super Admin</span></h1>
+                    <p class="superadmin-subtitle">Visão corporativa completa do sistema TaskForge</p>
+                </div>
+                <div class="superadmin-actions">
+                    <div class="time-display" id="currentDateTime"></div>
+                    <button class="btn btn-outline" id="refreshDataBtn" title="Atualizar dados">
+                        <i class="fas fa-sync-alt"></i> <span>Sincronizar</span>
+                    </button>
+                    <button class="btn btn-danger" id="emergencyBtn" title="Ações de emergência">
+                        <i class="fas fa-exclamation-triangle"></i> <span>Emergência</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- KPIs Principais -->
+            <div class="kpi-grid">
+                <div class="kpi-card critical">
+                    <div class="kpi-icon">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <div class="kpi-content">
+                        <span class="kpi-label">Status do Banco</span>
+                        <span class="kpi-value" id="dbStatus">Carregando...</span>
+                        <span class="kpi-trend" id="dbUptime">-</span>
+                    </div>
+                </div>
+
+                <div class="kpi-card warning">
+                    <div class="kpi-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="kpi-content">
+                        <span class="kpi-label">Total de Usuários</span>
+                        <span class="kpi-value" id="totalUsers">-</span>
+                        <span class="kpi-trend" id="newUsers">-</span>
+                    </div>
+                </div>
+
+                <div class="kpi-card info">
+                    <div class="kpi-icon">
+                        <i class="fas fa-project-diagram"></i>
+                    </div>
+                    <div class="kpi-content">
+                        <span class="kpi-label">Total de Projetos</span>
+                        <span class="kpi-value" id="totalProjects">-</span>
+                        <span class="kpi-trend" id="newProjects">-</span>
+                    </div>
+                </div>
+
+                <div class="kpi-card success">
+                    <div class="kpi-icon">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <div class="kpi-content">
+                        <span class="kpi-label">Tarefas Concluídas</span>
+                        <span class="kpi-value" id="completedTasks">-</span>
+                        <span class="kpi-trend" id="totalTasks">total</span>
+                    </div>
+                </div>
+
+                <div class="kpi-card danger">
+                    <div class="kpi-icon">
+                        <i class="fas fa-exclamation-circle"></i>
+                    </div>
+                    <div class="kpi-content">
+                        <span class="kpi-label">Tarefas Atrasadas</span>
+                        <span class="kpi-value" id="overdueTasks">-</span>
+                        <span class="kpi-trend" id="alertTrend">precisa atenção</span>
+                    </div>
+                </div>
+
+                <div class="kpi-card neutral">
+                    <div class="kpi-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="kpi-content">
+                        <span class="kpi-label">Comentários</span>
+                        <span class="kpi-value" id="totalComments">-</span>
+                        <span class="kpi-trend">total</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grid Principal -->
+            <div class="dashboard-grid">
+                <!-- Coluna Esquerda -->
+                <div class="grid-col">
+                    <!-- Atividade em Tempo Real -->
+                    <div class="card stats-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-chart-line"></i> Atividade em Tempo Real</h3>
+                            <span class="live-indicator">
+                                <span class="dot"></span> AO VIVO
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <div class="activity-feed" id="activityFeed">
+                                <div class="activity-item loading-item">Carregando atividades...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Usuários Recentes -->
+                    <div class="card users-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-user-plus"></i> Últimos Usuários</h3>
+                            <a href="#" class="view-all" onclick="superAdmin?.switchToTab('users')">Ver todos <i
+                                    class="fas fa-arrow-right"></i></a>
+                        </div>
+                        <div class="card-body">
+                            <div class="compact-table-container" id="recentUsersContainer">
+                                <table class="compact-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Usuário</th>
+                                            <th>Email</th>
+                                            <th>Data</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="recentUsersTable">
+                                        <tr>
+                                            <td colspan="3" class="loading-row">Carregando...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Coluna Direita -->
+                <div class="grid-col">
+                    <!-- Performance do Sistema -->
+                    <div class="card performance-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-server"></i> Performance</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="metrics-grid">
+                                <div class="metric-item">
+                                    <span class="metric-label">CPU</span>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" id="cpuUsage" style="width: 0%">0%</div>
+                                    </div>
+                                </div>
+                                <div class="metric-item">
+                                    <span class="metric-label">RAM</span>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" id="ramUsage" style="width: 0%">0%</div>
+                                    </div>
+                                </div>
+                                <div class="metric-item">
+                                    <span class="metric-label">DISCO</span>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" id="diskUsage" style="width: 0%">0%</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="system-info-grid">
+                                <div class="info-item">
+                                    <span class="info-label">Banco de Dados</span>
+                                    <span class="info-value" id="dbSize">-</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Tabelas</span>
+                                    <span class="info-value" id="dbTables">-</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Uptime</span>
+                                    <span class="info-value" id="serverUptime">-</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Memória</span>
+                                    <span class="info-value" id="serverMemory">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Alertas do Sistema -->
+                    <div class="card alerts-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-bell"></i> Alertas do Sistema</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert-list" id="alertList">
+                                <div class="alert-item info">Nenhum alerta no momento</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabelas de Gerenciamento -->
+            <div class="management-section">
+                <div class="management-tabs">
+                    <button class="management-tab active" data-tab="users">
+                        <i class="fas fa-users"></i> Usuários
+                    </button>
+                    <button class="management-tab" data-tab="projects">
+                        <i class="fas fa-project-diagram"></i> Projetos
+                    </button>
+                    <button class="management-tab" data-tab="logs">
+                        <i class="fas fa-history"></i> Logs de Auditoria
+                    </button>
+                </div>
+
+                <!-- Tab Users -->
+                <div class="management-pane active" id="usersPane">
+                    <div class="table-container">
+                        <table class="super-table" id="usersFullTable">
+                            <thead>
+                                <tr>
+                                    <th>Usuário</th>
+                                    <th>Email</th>
+                                    <th>Papel</th>
+                                    <th>Projetos</th>
+                                    <th>Tarefas</th>
+                                    <th>Cadastro</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <tr>
+                                    <td colspan="7" class="loading-row">Carregando usuários...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tab Projects -->
+                <div class="management-pane" id="projectsPane">
+                    <div class="table-container">
+                        <table class="super-table" id="projectsFullTable">
+                            <thead>
+                                <tr>
+                                    <th>Projeto</th>
+                                    <th>Proprietário</th>
+                                    <th>Membros</th>
+                                    <th>Tarefas</th>
+                                    <th>Progresso</th>
+                                    <th>Criação</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="projectsTableBody">
+                                <tr>
+                                    <td colspan="7" class="loading-row">Carregando projetos...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tab Logs -->
+                <div class="management-pane" id="logsPane">
+                    <div class="logs-filter">
+                        <select id="logLevel">
+                            <option value="all">Todos os níveis</option>
+                            <option value="info">Info</option>
+                            <option value="warning">Warning</option>
+                            <option value="error">Error</option>
+                            <option value="critical">Critical</option>
+                        </select>
+                        <input type="date" id="logDate">
+                        <button class="btn btn-primary btn-sm" id="applyLogFilter">Filtrar</button>
+                    </div>
+                    <div class="logs-list" id="logsList">
+                        <div class="loading-row">Carregando logs...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- MODAL DE EMERGÊNCIA -->
+    <div class="modal" id="emergencyModal">
+        <div class="modal-content emergency-modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-exclamation-triangle" style="color: var(--danger);"></i> Modo de Emergência</h3>
+                <button class="modal-close" id="closeEmergencyModal">&times;</button>
+            </div>
+            <div class="emergency-options">
+                <button class="emergency-btn danger" id="emergencyLockdown">
+                    <i class="fas fa-lock"></i> Bloquear Sistema
+                </button>
+                <button class="emergency-btn warning" id="emergencyMaintenance">
+                    <i class="fas fa-tools"></i> Modo Manutenção
+                </button>
+                <button class="emergency-btn info" id="emergencyBackup">
+                    <i class="fas fa-database"></i> Backup Forçado
+                </button>
+                <button class="emergency-btn critical" id="emergencyRestart">
+                    <i class="fas fa-power-off"></i> Reiniciar Serviços
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE EXPORTAÇÃO -->
+    <div class="modal" id="exportModal">
+        <div class="modal-content export-modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-download" style="color: var(--primary-blue);"></i> Exportar Dados</h3>
+                <button class="modal-close" id="closeExportModal">&times;</button>
+            </div>
+            <div class="export-options">
+                <div class="export-option" onclick="superAdmin.exportData('users')">
+                    <i class="fas fa-users"></i>
+                    <div class="export-option-info">
+                        <h4>Usuários</h4>
+                        <p>Exportar lista completa de usuários</p>
+                    </div>
+                </div>
+                <div class="export-option" onclick="superAdmin.exportData('projects')">
+                    <i class="fas fa-project-diagram"></i>
+                    <div class="export-option-info">
+                        <h4>Projetos</h4>
+                        <p>Exportar todos os projetos</p>
+                    </div>
+                </div>
+                <div class="export-option" onclick="superAdmin.exportData('logs')">
+                    <i class="fas fa-history"></i>
+                    <div class="export-option-info">
+                        <h4>Logs</h4>
+                        <p>Exportar logs do sistema</p>
+                    </div>
+                </div>
+                <div class="export-option" onclick="superAdmin.exportData('all')">
+                    <i class="fas fa-database"></i>
+                    <div class="export-option-info">
+                        <h4>Todos os Dados</h4>
+                        <p>Exportar relatório completo</p>
+                    </div>
+                </div>
+            </div>
+            <div class="export-format-selector">
+                <button class="format-btn active" id="formatJSON" onclick="superAdmin.setExportFormat('json')">
+                    <i class="fas fa-code"></i> JSON
+                </button>
+                <button class="format-btn" id="formatCSV" onclick="superAdmin.setExportFormat('csv')">
+                    <i class="fas fa-table"></i> CSV
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOTÃO DE EXPORTAÇÃO FLUTUANTE -->
+    <button class="export-floating-btn" id="exportFloatingBtn" title="Exportar dados">
+        <i class="fas fa-download"></i>
+    </button>
+
+    <!-- BOTÃO SAIR (LOGOUT) - VERSÃO RESPONSIVA -->
+    <button class="logout-floating-btn" id="logoutFloatingBtn" title="Sair">
+        <i class="fas fa-sign-out-alt"></i>
+        <span class="logout-text">Sair</span>
+    </button>
+
+    <script src="js/config/page-loader.js"></script>
+    <script>
+        // Logout manual
+        document.getElementById('logoutFloatingBtn')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (window.auth) {
+                window.auth.logout();
+            } else {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = 'login.html';
+            }
+        });
+    </script>
+</body>
+
+</html>

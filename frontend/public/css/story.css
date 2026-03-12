@@ -1,0 +1,112 @@
+/* ===== HISTÓRIA EXPANSÍVEL ===== */
+
+.story-section {
+    background: var(--bg-secondary);
+    border-radius: var(--radius-2xl);
+    margin: 4rem 0;
+    border: 1px solid rgba(37, 99, 235, 0.1);
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.story-header {
+    padding: 2rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(37, 99, 235, 0.02);
+    transition: background 0.3s ease;
+}
+
+.story-header:hover {
+    background: rgba(37, 99, 235, 0.05);
+}
+
+.story-header h2 {
+    margin: 0.5rem 0 0;
+    font-size: 2rem;
+}
+
+.story-toggle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(37, 99, 235, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-blue);
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+}
+
+.story-toggle i {
+    transition: transform 0.3s ease;
+}
+
+.story-toggle.open i {
+    transform: rotate(180deg);
+}
+
+.story-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease, padding 0.3s ease;
+    padding: 0 2rem;
+}
+
+.story-content.open {
+    max-height: 500px;
+    padding: 0 2rem 2rem 2rem;
+}
+
+.story-content p {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+}
+
+.story-content p:last-child {
+    margin-bottom: 0;
+}
+
+.story-content .highlight {
+    color: var(--primary-blue);
+    font-weight: 600;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .story-header {
+        padding: 1.5rem;
+    }
+    
+    .story-header h2 {
+        font-size: 1.5rem;
+    }
+    
+    .story-content p {
+        font-size: 1rem;
+    }
+    
+    .story-content.open {
+        padding: 0 1.5rem 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .story-header {
+        padding: 1.25rem;
+    }
+    
+    .story-header h2 {
+        font-size: 1.3rem;
+    }
+    
+    .story-toggle {
+        width: 40px;
+        height: 40px;
+    }
+}

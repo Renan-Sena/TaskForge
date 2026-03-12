@@ -1,0 +1,129 @@
+/* ===== HERO SECTION ===== */
+
+.hero {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+    min-height: 90vh;
+    padding: 6rem 2rem 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.hero-content {
+    max-width: 600px;
+}
+
+.hero .badge {
+    margin-bottom: 1.5rem;
+    display: inline-block;
+}
+
+.hero h1 {
+    font-size: 3.5rem;
+    line-height: 1.2;
+    margin-bottom: 1.5rem;
+    color: var(--text-primary);
+}
+
+.hero .slogan {
+    font-size: 1.5rem;
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    font-weight: 400;
+}
+
+.hero .text-large {
+    font-size: 1.2rem;
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+    line-height: 1.6;
+}
+
+.hero .highlight {
+    color: var(--primary-blue);
+    font-weight: 600;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 1rem;
+}
+
+.hero-img {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.hero-img img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--radius-2xl);
+    /* box-shadow: var(--shadow-hover); */
+    transform: perspective(1000px) rotateY(-5deg);
+    transition: transform 0.3s ease;
+}
+
+.hero-img img:hover {
+    transform: perspective(1000px) rotateY(0deg);
+}
+
+/* Responsividade */
+@media (max-width: 1024px) {
+    .hero {
+        gap: 2rem;
+        padding: 5rem 2rem 2rem;
+    }
+    
+    .hero h1 {
+        font-size: 3rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: 3rem;
+        min-height: auto;
+        padding: 5rem 1.5rem 2rem;
+    }
+    
+    .hero-content {
+        margin: 0 auto;
+    }
+    
+    .hero-buttons {
+        justify-content: center;
+    }
+    
+    .hero-img {
+        order: -1;
+    }
+    
+    .hero-img img {
+        max-width: 80%;
+        transform: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero h1 {
+        font-size: 2.5rem;
+    }
+    
+    .hero .slogan {
+        font-size: 1.2rem;
+    }
+    
+    .hero-buttons {
+        flex-direction: column;
+    }
+    
+    .hero-buttons .btn {
+        width: 100%;
+    }
+}

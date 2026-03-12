@@ -1,0 +1,80 @@
+/* ===== PILARES SECTION ===== */
+
+#pilares {
+    padding: 4rem 0;
+}
+
+.grid-cols-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin: 2rem 0;
+}
+
+#pilares .card {
+    background: var(--bg-card);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(37, 99, 235, 0.15);
+    border-radius: var(--radius-xl);
+    padding: 3rem 2rem;
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+#pilares .card:hover {
+    transform: translateY(-5px);
+    border-color: var(--primary-blue);
+    box-shadow: 0 20px 30px -10px rgba(37, 99, 235, 0.3);
+}
+
+#pilares .card i {
+    transition: transform 0.3s ease;
+}
+
+#pilares .card:hover i {
+    transform: scale(1.1);
+}
+
+#pilares .card h3 {
+    font-size: 1.5rem;
+    margin: 1.5rem 0 1rem;
+    color: var(--text-primary);
+}
+
+#pilares .card p {
+    color: var(--text-muted);
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+/* Responsividade */
+@media (max-width: 1024px) {
+    .grid-cols-3 {
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    #pilares {
+        padding: 3rem 0;
+    }
+    
+    .grid-cols-3 {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+    
+    #pilares .card {
+        padding: 2.5rem 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .grid-cols-3 {
+        grid-template-columns: 1fr;
+    }
+    
+    #pilares .card h3 {
+        font-size: 1.3rem;
+    }
+}

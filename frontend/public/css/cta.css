@@ -1,0 +1,86 @@
+/* ===== CTA SECTION ===== */
+
+.cta-section {
+    background: linear-gradient(145deg, rgba(37, 99, 235, 0.1), rgba(124, 58, 237, 0.1));
+    border-radius: var(--radius-2xl);
+    padding: 5rem 3rem;
+    text-align: center;
+    margin: 4rem 0;
+    border: 1px solid rgba(37, 99, 235, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.cta-section::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(37, 99, 235, 0.05) 0%, transparent 70%);
+    animation: rotate 30s linear infinite;
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.cta-section h2 {
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.cta-section p {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    margin-bottom: 2.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.cta-section .btn {
+    position: relative;
+    z-index: 1;
+    padding: 1rem 3rem;
+    font-size: 1.2rem;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .cta-section {
+        padding: 4rem 2rem;
+        margin: 3rem 0;
+    }
+    
+    .cta-section h2 {
+        font-size: 2.2rem;
+    }
+    
+    .cta-section p {
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .cta-section {
+        padding: 3rem 1.5rem;
+    }
+    
+    .cta-section h2 {
+        font-size: 1.8rem;
+    }
+    
+    .cta-section p {
+        font-size: 1rem;
+    }
+    
+    .cta-section .btn {
+        width: 100%;
+        padding: 0.875rem;
+        font-size: 1rem;
+    }
+}

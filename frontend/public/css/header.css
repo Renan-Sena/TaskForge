@@ -1,0 +1,594 @@
+/* ===== HEADER ORIGINAL TASKFORGE ===== */
+/* Mantendo exatamente como estava, apenas adicionando estilos para dashboard */
+
+header {
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(12px);
+    border-bottom: 2px solid rgba(37, 99, 235, 0.2);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
+
+header::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--gradient-tech-nav);
+    background-size: 200% 100%;
+    animation: navLine 4s linear infinite;
+}
+
+.header-content {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+}
+
+.logo-img {
+    height: 40px;
+    width: auto;
+}
+
+nav {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+}
+
+nav a {
+    color: var(--gray-500);
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: color 0.3s ease;
+    position: relative;
+    font-weight: 400;
+    letter-spacing: 1px;
+}
+
+nav a::before {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: var(--gradient-tech-nav);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+nav a:hover {
+    color: var(--gradient-tech-nav);
+}
+
+nav a:hover::before {
+    transform: scaleX(1);
+}
+
+.mobile-menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+/* ===== ESTILOS ESPECÍFICOS PARA O DASHBOARD ===== */
+/* Mantendo a estrutura original, apenas adicionando */
+
+/* Navegação do Dashboard - mantém mesma estrutura */
+#nav-dashboard {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+}
+
+/* Container do usuário no dashboard */
+.nav-user {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    position: relative;
+}
+
+/* Notificações */
+.notifications {
+    position: relative;
+    cursor: pointer;
+}
+
+.notifications i {
+    font-size: 1.25rem;
+    color: var(--gray-500);
+    transition: color 0.3s ease;
+}
+
+.notifications:hover i {
+    color: var(--gradient-tech-nav);
+}
+
+.notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #ef4444;
+    color: white;
+    font-size: 0.7rem;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+}
+
+/* Avatar do usuário */
+.user-avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    object-fit: cover;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+}
+
+.user-avatar:hover {
+    border-color: var(--primary-blue);
+}
+
+/* Informações do usuário */
+.user-info {
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+}
+
+.user-info .name {
+    color: var(--gray-200);
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.user-info .email {
+    color: var(--gray-500);
+    font-size: 0.75rem;
+}
+
+/* ===== DROPDOWNS - VERSÃO CORRIGIDA (FORA DA MEDIA QUERY) ===== */
+.notifications-wrapper,
+.user-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.user-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    width: 200px;
+    background: rgba(15, 23, 42, 0.98);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--primary-blue);
+    border-radius: 12px;
+    margin-top: 0;
+    display: none;
+    z-index: 10000;
+    overflow: hidden;
+    box-shadow: 0 20px 35px rgba(0, 0, 0, 0.5);
+}
+
+.notifications-dropdown {
+    width: 340px;
+}
+
+/* Classe de exibição */
+.user-dropdown.show,
+.notifications-dropdown.show {
+    display: block !important;
+}
+
+/* Links do dropdown */
+.user-dropdown a {
+    display: block;
+    padding: 12px 16px;
+    color: var(--gray-300);
+    text-decoration: none;
+    transition: all 0.2s;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.user-dropdown a:last-child {
+    border-bottom: none;
+}
+
+.user-dropdown a:hover {
+    background: rgba(37, 99, 235, 0.15);
+    color: white;
+}
+
+.user-dropdown hr {
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin: 8px 0;
+}
+
+/* Cabeçalho das notificações */
+.notifications-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(37, 99, 235, 0.1);
+}
+
+.notifications-header h3 {
+    color: white;
+    font-size: 1rem;
+    margin: 0;
+}
+
+/* Itens de notificação */
+.notification-item {
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.notification-item:hover {
+    background: rgba(37, 99, 235, 0.1);
+}
+
+.notification-item.unread {
+    border-left: 4px solid var(--primary-blue);
+    background: rgba(37, 99, 235, 0.05);
+}
+
+.notification-title {
+    color: white;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 4px;
+}
+
+.notification-message {
+    color: var(--gray-400);
+    font-size: 0.85rem;
+    margin-bottom: 4px;
+}
+
+.notification-time {
+    color: var(--gray-600);
+    font-size: 0.7rem;
+}
+
+.notifications,
+.user-menu {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* ===== DROPDOWNS ESPECÍFICOS PARA DESKTOP ===== */
+@media (min-width: 769px) {
+    .user-dropdown,
+    .notifications-dropdown {
+        display: none;
+    }
+    
+    .user-dropdown.show,
+    .notifications-dropdown.show {
+        display: block !important;
+        animation: fadeIn 0.2s ease;
+    }
+    
+    /* Garantir que os botões sejam clicáveis */
+    .user-menu,
+    .notifications {
+        cursor: pointer;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Animações gerais */
+@keyframes navLine {
+    0% {
+        background-position: 0% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+/* ===== NOVOS ESTILOS - MENU LATERAL MOBILE ===== */
+/* Adicionados sem modificar nada acima */
+
+/* Overlay para menu lateral */
+.mobile-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 999;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.mobile-overlay.active {
+    display: block;
+    opacity: 1;
+}
+
+/* Menu lateral */
+.mobile-drawer {
+    position: fixed;
+    top: 0;
+    right: -300px;
+    width: 280px;
+    height: 100vh;
+    background: rgba(15, 23, 42, 0.98);
+    backdrop-filter: blur(16px);
+    border-left: 1px solid rgba(37, 99, 235, 0.3);
+    z-index: 1002;
+    transition: right 0.3s ease;
+    padding: 2rem 1rem;
+    box-shadow: -5px 0 20px rgba(0, 0, 0, 0.3);
+}
+
+.mobile-drawer.open {
+    right: 0;
+}
+
+/* Cabeçalho do drawer */
+.drawer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(37, 99, 235, 0.2);
+}
+
+.drawer-header h3 {
+    color: var(--gray-200);
+    font-size: 1.2rem;
+}
+
+.drawer-close {
+    background: none;
+    border: none;
+    color: var(--gray-500);
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.drawer-close:hover {
+    color: var(--primary-blue);
+}
+
+/* Abas do drawer */
+.drawer-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(37, 99, 235, 0.2);
+    padding-bottom: 0.5rem;
+}
+
+.drawer-tab {
+    flex: 1;
+    padding: 0.5rem;
+    background: none;
+    border: none;
+    color: var(--gray-500);
+    font-size: 0.9rem;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.drawer-tab.active {
+    background: rgba(37, 99, 235, 0.15);
+    color: var(--primary-blue);
+}
+
+.drawer-tab i {
+    margin-right: 0.5rem;
+}
+
+/* Conteúdo do drawer */
+.drawer-content {
+    height: calc(100vh - 180px);
+    overflow-y: auto;
+}
+
+.drawer-section {
+    display: none;
+}
+
+.drawer-section.active {
+    display: block;
+}
+
+/* Notificações no drawer */
+.drawer-notification-item {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    transition: background 0.2s ease;
+    border-radius: 4px;
+}
+
+.drawer-notification-item:hover {
+    background: rgba(37, 99, 235, 0.05);
+}
+
+.drawer-notification-item.unread {
+    border-left: 3px solid var(--primary-blue);
+    background: rgba(37, 99, 235, 0.02);
+}
+
+.drawer-notification-title {
+    color: var(--gray-200);
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.drawer-notification-message {
+    color: var(--gray-500);
+    font-size: 0.8rem;
+    margin-bottom: 0.25rem;
+}
+
+.drawer-notification-time {
+    color: var(--gray-600);
+    font-size: 0.7rem;
+}
+
+/* Itens de menu no drawer */
+.drawer-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    color: var(--gray-500);
+    text-decoration: none;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    margin-bottom: 0.25rem;
+}
+
+.drawer-menu-item:hover {
+    background: rgba(37, 99, 235, 0.1);
+    color: var(--primary-blue);
+}
+
+.drawer-menu-item i {
+    width: 20px;
+    color: var(--primary-blue);
+}
+
+.drawer-menu-divider {
+    height: 1px;
+    background: rgba(37, 99, 235, 0.2);
+    margin: 1rem 0;
+}
+
+/* Informações do usuário no drawer */
+.drawer-user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(37, 99, 235, 0.05);
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.drawer-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 2px solid var(--primary-blue);
+}
+
+.drawer-user-details {
+    flex: 1;
+}
+
+.drawer-user-name {
+    color: var(--gray-200);
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.drawer-user-email {
+    color: var(--gray-500);
+    font-size: 0.8rem;
+}
+
+/* Responsividade - Apenas adicionando, não modificando as existentes */
+@media (max-width: 768px) {
+    /* Esconder elementos desktop no mobile */
+    .user-info {
+        display: none;
+    }
+    
+    .notifications-dropdown,
+    .user-dropdown {
+        display: none !important;
+    }
+    
+    /* Garantir que o avatar fique visível */
+    .user-avatar {
+        display: block;
+        width: 35px;
+        height: 35px;
+    }
+    
+    /* Ajustar posição do botão menu */
+    .mobile-menu-btn {
+        display: block;
+        order: 3;
+    }
+    
+    /* Reorganizar header no mobile */
+    .header-content {
+        padding: 0.75rem 1rem;
+    }
+    
+    nav,
+    #nav-dashboard {
+        display: none !important;
+    }
+    
+    .nav-user {
+        gap: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .mobile-drawer {
+        width: 260px;
+    }
+    
+    .drawer-user-info {
+        flex-direction: column;
+        text-align: center;
+    }
+}

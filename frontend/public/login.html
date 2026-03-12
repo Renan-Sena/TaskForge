@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <!-- META TAGS -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    
+    <title>TaskForge - Login | Forge Your Productivity</title>
+    <meta name="description" content="Acesse sua conta TaskForge e continue forjando sua produtividade. Gerencie projetos, tarefas e colabore com sua equipe.">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/login.css">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body class="auth-page">
+    <!-- Header simplificado para página de login -->
+    <!-- <header>
+        <div class="header-content">
+            <a href="index.html" class="logo-container" aria-label="TaskForge - Página inicial">
+                <img src="assets/Taskgorge_logo1.webp" alt="TaskForge Logo" class="logo-img" width="150" height="40">
+            </a>
+            <nav id="nav" aria-label="Menu principal">
+                <a href="index.html#features">Recursos</a>
+                <a href="index.html#pilares">Pilares</a>
+                <a href="index.html#contato">Contato</a>
+                <a href="login.html" class="btn btn-sm btn-primary">Login</a>
+            </nav>
+            <button class="mobile-menu-btn" id="menuBtn" aria-label="Menu" aria-expanded="false">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header> -->
+
+    <main>
+        <div class="auth-container">
+            <div class="auth-header">
+                <img src="assets/Taskgorge_logo1.webp" alt="TaskForge" class="logo-img" width="120" height="32">
+                <h1>Bem-vindo de volta</h1>
+                <p>Entre para continuar forjando sua produtividade</p>
+            </div>
+
+            <!-- Tabs de Login/Registro -->
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="switchTab('login')">Entrar</button>
+                <button class="auth-tab" onclick="switchTab('register')">Criar conta</button>
+            </div>
+
+            <!-- Mensagem de erro (inicialmente oculta) -->
+            <div id="errorMessage" class="alert alert-error" style="display: none;"></div>
+
+            <!-- Loading (inicialmente oculto) -->
+            <div id="loading" class="loading" style="display: none; margin: 0 auto;"></div>
+
+            <!-- Formulário de Login -->
+            <form id="loginForm" class="auth-form active" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" name="email" required placeholder="seu@email.com">
+                </div>
+                
+                <div class="form-group">
+                    <label for="loginPassword">Senha</label>
+                    <input type="password" id="loginPassword" name="password" required placeholder="••••••••">
+                </div>
+
+                <div style="text-align: right; margin-bottom: var(--space-md);">
+                    <a href="#" style="color: var(--primary-blue); font-size: 0.85rem; text-decoration: none;">Esqueceu a senha?</a>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Entrar
+                </button>
+            </form>
+
+            <!-- Formulário de Registro -->
+            <form id="registerForm" class="auth-form" onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label for="registerName">Nome completo</label>
+                    <input type="text" id="registerName" name="name" required placeholder="Seu nome">
+                </div>
+
+                <div class="form-group">
+                    <label for="registerEmail">Email</label>
+                    <input type="email" id="registerEmail" name="email" required placeholder="seu@email.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="registerPassword">Senha (mínimo 6 caracteres)</label>
+                    <input type="password" id="registerPassword" name="password" required minlength="6" placeholder="••••••••">
+                </div>
+
+                <div class="form-group">
+                    <label for="registerConfirmPassword">Confirmar senha</label>
+                    <input type="password" id="registerConfirmPassword" name="confirmPassword" required minlength="6" placeholder="••••••••">
+                </div>
+
+                <div class="form-group" style="display: flex; align-items: center; gap: var(--space-sm);">
+                    <input type="checkbox" id="terms" required style="width: auto;">
+                    <label for="terms" style="margin: 0; font-size: 0.85rem; color: var(--text-secondary);">
+                        Eu aceito os <a href="#" style="color: var(--primary-blue);">Termos de Uso</a> e <a href="#" style="color: var(--primary-blue);">Política de Privacidade</a>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">
+                    <i class="fas fa-user-plus"></i>
+                    Criar conta
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                <p>© 2026 TaskForge. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Alternar entre tabs de login e registro
+        function switchTab(tab) {
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+            
+            if (tab === 'login') {
+                document.querySelector('.auth-tab').classList.add('active');
+                document.getElementById('loginForm').classList.add('active');
+            } else {
+                document.querySelectorAll('.auth-tab')[1].classList.add('active');
+                document.getElementById('registerForm').classList.add('active');
+            }
+        }
+
+        // Função de Login
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const errorEl = document.getElementById('errorMessage');
+            const loadingEl = document.getElementById('loading');
+            
+            errorEl.style.display = 'none';
+            loadingEl.style.display = 'inline-block';
+            
+            try {
+                const response = await fetch('http://localhost:3000/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    window.location.href = 'dashboard.html';
+                } else {
+                    errorEl.textContent = data.error || 'Erro ao fazer login';
+                    errorEl.style.display = 'block';
+                }
+            } catch (error) {
+                errorEl.textContent = 'Erro de conexão com o servidor';
+                errorEl.style.display = 'block';
+                console.error('Login error:', error);
+            } finally {
+                loadingEl.style.display = 'none';
+            }
+        }
+
+        // Função de Registro
+        async function handleRegister(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerConfirmPassword').value;
+            const terms = document.getElementById('terms').checked;
+            const errorEl = document.getElementById('errorMessage');
+            const loadingEl = document.getElementById('loading');
+            
+            errorEl.style.display = 'none';
+            
+            // Validações
+            if (!terms) {
+                errorEl.textContent = 'Você precisa aceitar os termos de uso';
+                errorEl.style.display = 'block';
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                errorEl.textContent = 'As senhas não coincidem';
+                errorEl.style.display = 'block';
+                return;
+            }
+            
+            if (password.length < 6) {
+                errorEl.textContent = 'A senha deve ter no mínimo 6 caracteres';
+                errorEl.style.display = 'block';
+                return;
+            }
+            
+            loadingEl.style.display = 'inline-block';
+            
+            try {
+                const response = await fetch('http://localhost:3000/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    window.location.href = 'dashboard.html';
+                } else {
+                    errorEl.textContent = data.error || 'Erro ao criar conta';
+                    errorEl.style.display = 'block';
+                }
+            } catch (error) {
+                errorEl.textContent = 'Erro de conexão com o servidor';
+                errorEl.style.display = 'block';
+                console.error('Register error:', error);
+            } finally {
+                loadingEl.style.display = 'none';
+            }
+        }
+
+        // Menu mobile
+        document.getElementById('menuBtn')?.addEventListener('click', () => {
+            document.getElementById('nav').classList.toggle('active');
+        });
+
+        // Verificar se já está logado
+        const token = localStorage.getItem('token');
+        if (token) {
+            window.location.href = 'dashboard.html';
+        }
+    </script>
+</body>
+
+</html>

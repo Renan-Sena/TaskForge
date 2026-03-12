@@ -1,0 +1,82 @@
+/* ===== FOOTER ===== */
+
+footer {
+    background: var(--bg-secondary);
+    padding: 4rem 0 2rem;
+    margin-top: 4rem;
+    border-top: 1px solid rgba(37, 99, 235, 0.2);
+}
+
+footer .grid-cols-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+footer h4 {
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+}
+
+footer ul {
+    list-style: none;
+    padding: 0;
+}
+
+footer ul li {
+    margin-bottom: 0.75rem;
+}
+
+footer ul li a {
+    color: var(--gray-500);
+    text-decoration: none;
+    transition: color 0.2s ease;
+    font-size: 0.95rem;
+}
+
+footer ul li a:hover {
+    color: var(--primary-blue);
+}
+
+footer hr {
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    margin: 2rem 0;
+}
+
+footer p {
+    color: var(--gray-600);
+    font-size: 0.9rem;
+}
+
+/* Responsividade */
+@media (max-width: 1024px) {
+    footer .grid-cols-4 {
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    footer {
+        padding: 3rem 0 1.5rem;
+    }
+    
+    footer .grid-cols-4 {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    footer .grid-cols-4 {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
+    footer h4 {
+        margin-bottom: 1rem;
+    }
+}
