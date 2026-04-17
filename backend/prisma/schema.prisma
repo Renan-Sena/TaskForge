@@ -11,7 +11,7 @@ model User {
   id             String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name           String
   email          String          @unique
-  password       String
+  password       String?
   avatar         String?
   role           String          @default("user")
   created_at     DateTime        @default(now())
@@ -25,6 +25,10 @@ model User {
   reminders      Reminder[]
   assignedTasks  Task[]          @relation("Assignee")
   createdTasks   Task[]          @relation("Creator")
+  googleId       String?         @unique
+  refreshToken   String?
+  lastLoginAt    DateTime?
+  lastLoginIp    String?
 
   @@map("users")
 }
