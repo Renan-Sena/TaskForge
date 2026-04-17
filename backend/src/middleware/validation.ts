@@ -5,7 +5,7 @@ import { AnyZodObject, z } from 'zod/v3';
 export const validate = (schema: AnyZodObject) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await schema.parseAsync(req.body); // ← diretamente o body
+      await schema.parseAsync(req.body); 
       next();
     } catch (error) {
       if (error instanceof z.ZodError) {

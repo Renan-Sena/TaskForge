@@ -1,104 +1,82 @@
-import type { Response } from 'express';
-import type { AuthRequest } from '../../middleware/auth.js';
+import type { Request, Response } from 'express';
 import { projectService } from './project.service.js';
 import { successResponse, errorResponse } from '../../utils/apiResponse.js';
+import { getAuthenticatedUser } from '../../utils/auth.js';
 
 export const projectController = {
-  async create(req: AuthRequest, res: Response) {
-    if (!req.user) {
-      res.status(401).json(errorResponse('Não autenticado'));
-      return;
-    }
+  async create(req: Request, res: Response) {
+    const user = getAuthenticatedUser(req);
     try {
-      const project = await projectService.create(req.user.id, req.body);
-      res.status(201).json(successResponse(project, 'Projeto criado com sucesso'));
+      const project = await projectService.create(user.id, req.body);
+      return res.status(201).json(successResponse(project, 'Projeto criado com sucesso'));
     } catch (error: any) {
-      res.status(400).json(errorResponse(error.message));
+      return res.status(400).json(errorResponse(error.message));
     }
   },
 
-  async getAll(req: AuthRequest, res: Response) {
-    if (!req.user) {
-      res.status(401).json(errorResponse('Não autenticado'));
-      return;
-    }
+  async getAll(req: Request, res: Response) {
+    const user = getAuthenticatedUser(req);
     try {
-      const projects = await projectService.getAllByUser(req.user.id);
-      res.json(successResponse(projects));
+      const projects = await projectService.getAllByUser(user.id);
+      return res.json(successResponse(projects));
     } catch (error: any) {
-      res.status(500).json(errorResponse(error.message));
+      return res.status(500).json(errorResponse(error.message));
     }
   },
 
-  async getById(req: AuthRequest, res: Response) {
-    if (!req.user) {
-      res.status(401).json(errorResponse('Não autenticado'));
-      return;
-    }
-    const { id } = req.params;
-    if (!id || typeof id !== 'string') {
-      res.status(400).json(errorResponse('ID inválido'));
-      return;
+  async getById(req: Request, res: Response) {
+    const id = req.params.id as string;
+    if (!id) {
+      return res.status(400).json(errorResponse('ID inválido'));
     }
     try {
-      const project = await projectService.getById(id, req.user.id);
-      res.json(successResponse(project));
+      const user = getAuthenticatedUser(req);
+      const project = await projectService.getById(id, user.id);
+      return res.json(successResponse(project));
     } catch (error: any) {
-      res.status(404).json(errorResponse(error.message));
+      return res.status(404).json(errorResponse(error.message));
     }
   },
 
-  async update(req: AuthRequest, res: Response) {
-    if (!req.user) {
-      res.status(401).json(errorResponse('Não autenticado'));
-      return;
-    }
-    const { id } = req.params;
-    if (!id || typeof id !== 'string') {
-      res.status(400).json(errorResponse('ID inválido'));
-      return;
+  async update(req: Request, res: Response) {
+    const id = req.params.id as string;
+    if (!id) {
+      return res.status(400).json(errorResponse('ID inválido'));
     }
     try {
-      const project = await projectService.update(id, req.user.id, req.body);
-      res.json(successResponse(project, 'Projeto atualizado'));
+      const user = getAuthenticatedUser(req);
+      const project = await projectService.update(id, user.id, req.body);
+      return res.json(successResponse(project, 'Projeto atualizado'));
     } catch (error: any) {
-      res.status(400).json(errorResponse(error.message));
+      return res.status(400).json(errorResponse(error.message));
     }
   },
 
-  async delete(req: AuthRequest, res: Response) {
-    if (!req.user) {
-      res.status(401).json(errorResponse('Não autenticado'));
-      return;
-    }
-    const { id } = req.params;
-    if (!id || typeof id !== 'string') {
-      res.status(400).json(errorResponse('ID inválido'));
-      return;
+  async delete(req: Request, res: Response) {
+    const id = req.params.id as string;
+    if (!id) {
+      return res.status(400).json(errorResponse('ID inválido'));
     }
     try {
-      await projectService.delete(id, req.user.id);
-      res.status(204).send();
+      const user = getAuthenticatedUser(req);
+      await projectService.delete(id, user.id);
+      return res.status(204).send();
     } catch (error: any) {
-      res.status(400).json(errorResponse(error.message));
+      return res.status(400).json(errorResponse(error.message));
     }
   },
 
-  async inviteMember(req: AuthRequest, res: Response) {
-    if (!req.user) {
-      res.status(401).json(errorResponse('Não autenticado'));
-      return;
-    }
-    const { id } = req.params;
-    if (!id || typeof id !== 'string') {
-      res.status(400).json(errorResponse('ID inválido'));
-      return;
+  async inviteMember(req: Request, res: Response) {
+    const id = req.params.id as string;
+    if (!id) {
+      return res.status(400).json(errorResponse('ID inválido'));
     }
     try {
-      await projectService.inviteMember(id, req.user.id, req.body);
-      res.json(successResponse(null, 'Membro convidado com sucesso'));
+      const user = getAuthenticatedUser(req);
+      await projectService.inviteMember(id, user.id, req.body);
+      return res.json(successResponse(null, 'Membro convidado com sucesso'));
     } catch (error: any) {
-      res.status(400).json(errorResponse(error.message));
+      return res.status(400).json(errorResponse(error.message));
     }
   },
 };
