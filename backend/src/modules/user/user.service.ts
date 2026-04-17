@@ -7,6 +7,9 @@ import {
   hashRefreshToken,
 } from '../../utils/token.js';
 import type { UserCreateInput, LoginInput, AuthResponse, UserResponse } from './user.types.js';
+import { container } from '../../shared/container.js';
+
+const auditService = container.auditService;
 
 export const userService = {
   async register(input: UserCreateInput): Promise<AuthResponse> {
@@ -40,12 +43,31 @@ export const userService = {
     };
   },
 
-  async login(input: LoginInput): Promise<AuthResponse> {
+  async login(input: LoginInput, metadata?: { ip?: string; userAgent?: string }): Promise<AuthResponse> {
     const user = await userRepository.findByEmail(input.email);
-    if (!user || !user.password) throw new Error('Email ou senha inválidos');
+    if (!user || !user.password) {
+      await auditService.log({
+        email: input.email,
+        action: 'LOGIN_FAILURE',
+        ip: metadata?.ip,
+        userAgent: metadata?.userAgent,
+        metadata: { reason: 'Email não encontrado ou senha não definida' },
+      });
+      throw new Error('Email ou senha inválidos');
+    }
 
     const isValid = await comparePassword(input.password, user.password);
-    if (!isValid) throw new Error('Email ou senha inválidos');
+    if (!isValid) {
+      await auditService.log({
+        userId: user.id,
+        email: user.email,
+        action: 'LOGIN_FAILURE',
+        ip: metadata?.ip,
+        userAgent: metadata?.userAgent,
+        metadata: { reason: 'Senha incorreta' },
+      });
+      throw new Error('Email ou senha inválidos');
+    }
 
     const accessToken = generateAccessToken({
       id: user.id,
@@ -56,6 +78,14 @@ export const userService = {
     const hashedRefreshToken = hashRefreshToken(refreshToken);
 
     await userRepository.updateRefreshToken(user.id, hashedRefreshToken);
+
+    await auditService.log({
+      userId: user.id,
+      email: user.email,
+      action: 'LOGIN_SUCCESS',
+      ip: metadata?.ip,
+      userAgent: metadata?.userAgent,
+    });
 
     return {
       user: {
@@ -71,15 +101,28 @@ export const userService = {
     };
   },
 
-  async refreshToken(oldRefreshToken: string) {
+  async refreshToken(oldRefreshToken: string, metadata?: { ip?: string; userAgent?: string }) {
     const payload = verifyRefreshToken(oldRefreshToken);
     if (!payload || !payload.id) {
+      await auditService.log({
+        action: 'REFRESH_FAILURE',
+        ip: metadata?.ip,
+        userAgent: metadata?.userAgent,
+        metadata: { reason: 'Token inválido ou expirado' },
+      });
       throw new Error('Refresh token inválido ou expirado');
     }
 
     const hashed = hashRefreshToken(oldRefreshToken);
     const user = await userRepository.findByRefreshTokenHash(hashed);
     if (!user) {
+      await auditService.log({
+        userId: payload.id,
+        action: 'REFRESH_FAILURE',
+        ip: metadata?.ip,
+        userAgent: metadata?.userAgent,
+        metadata: { reason: 'Token não encontrado ou já revogado' },
+      });
       throw new Error('Refresh token não encontrado ou já revogado');
     }
 
@@ -96,14 +139,25 @@ export const userService = {
 
     await userRepository.updateRefreshToken(user.id, newHashed);
 
+    // Opcional: log de refresh bem‑sucedido
+    // await auditService.log({ ... });
+
     return {
       accessToken: newAccessToken,
       refreshToken: newRefreshToken,
     };
   },
 
-  async logout(userId: string): Promise<void> {
+  async logout(userId: string, metadata?: { ip?: string; userAgent?: string; email?: string }): Promise<void> {
     await userRepository.updateRefreshToken(userId, null);
+
+    await auditService.log({
+      userId,
+      email: metadata?.email,
+      action: 'LOGOUT',
+      ip: metadata?.ip,
+      userAgent: metadata?.userAgent,
+    });
   },
 
   async getUserById(userId: string): Promise<UserResponse> {
