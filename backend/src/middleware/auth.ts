@@ -1,36 +1,41 @@
-import type { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
-import { env } from '../config/env.js';
-import { logger } from '../config/logger.js';
+import { Request, Response, NextFunction } from 'express';
+import { verifyAccessToken } from '../utils/token.js';
 
-export interface AuthRequest extends Request {
-    user?: {
-        id: string;
-        email: string;
-        name: string;
-    };
-}
+export const authenticateToken = (req: Request, res: Response, next: NextFunction): void => {
+  let token: string | undefined;
 
-export const authenticateToken = (
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction
-) => {
-    const authHeader = req.headers.authorization;
-    const token = authHeader && authHeader.split(' ')[1];
+  // 1. Header Authorization
+  const authHeader = req.headers.authorization;
+  if (authHeader?.startsWith('Bearer ')) {
+    token = authHeader.substring(7).replace(/\s+/g, '');
+  }
 
-    if (!token) {
-        res.status(401).json({ error: 'Token não fornecido' });
-        return;
-    }
+  // 2. Header X-Access-Token
+  if (!token && req.headers['x-access-token']) {
+    token = (req.headers['x-access-token'] as string).replace(/\s+/g, '');
+  }
 
-    jwt.verify(token, env.JWT_SECRET, (err, decoded) => {
-        if (err) {
-            logger.warn({ err, token }, 'Token inválido');
-            res.status(403).json({ error: 'Token inválido' });
-            return;
-        }
-        req.user = decoded as { id: string; email: string; name: string; };
-        next();
-    });
+  // 3. Query string ?token=...
+  if (!token && req.query.token) {
+    token = (req.query.token as string).replace(/\s+/g, '');
+  }
+
+  // 4. Corpo da requisição (campo access_token)
+  if (!token && req.body?.access_token) {
+    token = (req.body.access_token as string).replace(/\s+/g, '');
+  }
+
+  if (!token) {
+    res.status(401).json({ message: 'Token não fornecido' });
+    return;
+  }
+
+  const decoded = verifyAccessToken(token);
+  if (!decoded) {
+    res.status(403).json({ message: 'Token inválido ou expirado' });
+    return;
+  }
+
+  req.user = decoded;
+  next();
 };

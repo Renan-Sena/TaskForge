@@ -1,8 +1,8 @@
 export interface UserCreateInput {
+  name: string;
   email: string;
   password: string;
-  name: string;
-  avatar?: string;
+  avatar?: string | null;
 }
 
 export interface UserResponse {

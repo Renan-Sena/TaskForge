@@ -1,33 +1,35 @@
-import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import { env } from '../config/env.js';
 
-export const generateAccessToken = (payload: any) => {
+export const generateAccessToken = (payload: { id: string; email: string; name: string }) => {
   return jwt.sign(payload, env.JWT_SECRET, { expiresIn: '15m' });
 };
 
-export const generateRefreshToken = () => {
-  return crypto.randomBytes(40).toString('hex');
-};
-
-export const hashRefreshToken = (token: string) => {
-  return crypto.createHash('sha256').update(token).digest('hex');
+export const generateRefreshToken = (payload: { id: string }) => {
+  return jwt.sign(payload, env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
 };
 
 export const verifyAccessToken = (token: string) => {
   try {
-    return jwt.verify(token, env.JWT_SECRET);
+    console.log('🔐 Verificando token com segredo:', env.JWT_SECRET);
+    console.log('🔐 Segredo (JSON):', JSON.stringify(env.JWT_SECRET));
+    const decoded = jwt.verify(token, env.JWT_SECRET);
+    return decoded as { id: string; email: string; name: string };
+  } catch (err: any) {
+    console.error('❌ Erro na verificação JWT:', err.message);
+    return null;
+  }
+};
+
+export const verifyRefreshToken = (token: string) => {
+  try {
+    return jwt.verify(token, env.JWT_REFRESH_SECRET) as { id: string };
   } catch {
     return null;
   }
 };
 
-// 🔹 Função que estava faltando
-export const verifyRefreshToken = (token: string) => {
-  // O refresh token não é JWT, é um token aleatório. A verificação real é feita comparando o hash no banco.
-  // Esta função apenas decodifica se você estiver usando JWT para refresh. Como não usamos JWT para refresh,
-  // podemos retornar o token original ou lançar erro. Mas para compatibilidade com o código existente,
-  // vamos retornar o payload fictício ou simplesmente o token. Ajuste conforme sua lógica.
-  // O ideal é que o refresh token seja um JWT também, mas vamos manter simples:
-  return { id: token }; // placeholders
+export const hashRefreshToken = (token: string): string => {
+  return crypto.createHash('sha256').update(token).digest('hex');
 };

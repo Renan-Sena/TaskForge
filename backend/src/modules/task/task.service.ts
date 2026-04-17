@@ -4,7 +4,6 @@ import type { TaskCreateInput, TaskUpdateInput, TaskResponse, CommentCreateInput
 
 export const taskService = {
   async create(userId: string, input: TaskCreateInput): Promise<TaskResponse> {
-    // Verificar se usuário é membro do projeto
     const isMember = await projectRepository.findMember(input.projectId, userId);
     if (!isMember) throw new Error('Você não é membro deste projeto');
 
@@ -15,7 +14,6 @@ export const taskService = {
   async getById(taskId: string, userId: string): Promise<TaskResponse> {
     const task = await taskRepository.findById(taskId);
     if (!task) throw new Error('Tarefa não encontrada');
-    // Verificar permissão via projeto
     const isMember = await projectRepository.findMember(task.projectId, userId);
     if (!isMember) throw new Error('Sem permissão para ver esta tarefa');
     return formatTaskResponse(task);

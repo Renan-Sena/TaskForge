@@ -6,11 +6,10 @@ import { limiter } from './middleware/rateLimiter.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
 // Rotas
-import userRoutes from './modules/user/user.routes.js';
 import projectRoutes from './modules/project/project.routes.js';
 import taskRoutes from './modules/task/task.routes.js';
 import adminRoutes from './modules/admin/admin.routes.js';
-import authRoutes from './modules/auth/auth.routes.js';
+import authRoutes from './modules/auth/auth.routes.js'; 
 
 export const app = express();
 
@@ -19,17 +18,22 @@ app.use(express.json());
 app.use(httpLogger);
 app.use(limiter);
 
+app.use((req, res, next) => {
+  console.log('📨 Headers completos recebidos:');
+  console.log(JSON.stringify(req.headers, null, 2));
+  next();
+});
+
 // Rotas da API
-app.use('/api/v1/auth', userRoutes);
+app.use('/api/v1/auth', authRoutes);      
 app.use('/api/v1/projects', projectRoutes);
 app.use('/api/v1/tasks', taskRoutes);
-app.use('/api/v1/admin', adminRoutes);
-app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/admin', adminRoutes);  
 
-// Health check
+
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date() });
 });
 
-// Tratamento de erros (deve ser o último middleware)
+
 app.use(errorHandler);

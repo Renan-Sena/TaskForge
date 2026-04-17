@@ -1,132 +1,104 @@
-import type { Response } from 'express';
-import type { AuthRequest } from '../../middleware/auth.js';
+import type { Request, Response } from 'express';
 import { taskService } from './task.service.js';
 import { successResponse, errorResponse } from '../../utils/apiResponse.js';
+import { getAuthenticatedUser } from '../../utils/auth.js';
 
 export const taskController = {
-  async create(req: AuthRequest, res: Response) {
-    if (!req.user) {
-      res.status(401).json(errorResponse('Não autenticado'));
-      return;
-    }
+  async create(req: Request, res: Response) {
+    const user = getAuthenticatedUser(req);
     try {
-      const task = await taskService.create(req.user.id, req.body);
-      res.status(201).json(successResponse(task, 'Tarefa criada'));
+      const task = await taskService.create(user.id, req.body);
+      return res.status(201).json(successResponse(task, 'Tarefa criada'));
     } catch (error: any) {
-      res.status(400).json(errorResponse(error.message));
+      return res.status(400).json(errorResponse(error.message));
     }
   },
 
-  async getById(req: AuthRequest, res: Response) {
-    if (!req.user) {
-      res.status(401).json(errorResponse('Não autenticado'));
-      return;
-    }
-    const { id } = req.params;
-    if (!id || typeof id !== 'string') {
-      res.status(400).json(errorResponse('ID inválido'));
-      return;
+  async getById(req: Request, res: Response) {
+    const id = req.params.id as string;
+    if (!id) {
+      return res.status(400).json(errorResponse('ID inválido'));
     }
     try {
-      const task = await taskService.getById(id, req.user.id);
-      res.json(successResponse(task));
+      const user = getAuthenticatedUser(req);
+      const task = await taskService.getById(id, user.id);
+      return res.json(successResponse(task));
     } catch (error: any) {
-      res.status(404).json(errorResponse(error.message));
+      return res.status(404).json(errorResponse(error.message));
     }
   },
 
-  async update(req: AuthRequest, res: Response) {
-    if (!req.user) {
-      res.status(401).json(errorResponse('Não autenticado'));
-      return;
-    }
-    const { id } = req.params;
-    if (!id || typeof id !== 'string') {
-      res.status(400).json(errorResponse('ID inválido'));
-      return;
+  async update(req: Request, res: Response) {
+    const id = req.params.id as string;
+    if (!id) {
+      return res.status(400).json(errorResponse('ID inválido'));
     }
     try {
-      const task = await taskService.update(id, req.user.id, req.body);
-      res.json(successResponse(task, 'Tarefa atualizada'));
+      const user = getAuthenticatedUser(req);
+      const task = await taskService.update(id, user.id, req.body);
+      return res.json(successResponse(task, 'Tarefa atualizada'));
     } catch (error: any) {
-      res.status(400).json(errorResponse(error.message));
+      return res.status(400).json(errorResponse(error.message));
     }
   },
 
-  async move(req: AuthRequest, res: Response) {
-    if (!req.user) {
-      res.status(401).json(errorResponse('Não autenticado'));
-      return;
-    }
-    const { id } = req.params;
+  async move(req: Request, res: Response) {
+    const id = req.params.id as string;
     const { status } = req.body;
-    if (!id || typeof id !== 'string') {
-      res.status(400).json(errorResponse('ID inválido'));
-      return;
+    if (!id) {
+      return res.status(400).json(errorResponse('ID inválido'));
     }
     if (!status || !['todo', 'doing', 'done'].includes(status)) {
-      res.status(400).json(errorResponse('Status inválido'));
-      return;
+      return res.status(400).json(errorResponse('Status inválido'));
     }
     try {
-      const task = await taskService.move(id, req.user.id, status);
-      res.json(successResponse(task, 'Tarefa movida'));
+      const user = getAuthenticatedUser(req);
+      const task = await taskService.move(id, user.id, status);
+      return res.json(successResponse(task, 'Tarefa movida'));
     } catch (error: any) {
-      res.status(400).json(errorResponse(error.message));
+      return res.status(400).json(errorResponse(error.message));
     }
   },
 
-  async delete(req: AuthRequest, res: Response) {
-    if (!req.user) {
-      res.status(401).json(errorResponse('Não autenticado'));
-      return;
-    }
-    const { id } = req.params;
-    if (!id || typeof id !== 'string') {
-      res.status(400).json(errorResponse('ID inválido'));
-      return;
+  async delete(req: Request, res: Response) {
+    const id = req.params.id as string;
+    if (!id) {
+      return res.status(400).json(errorResponse('ID inválido'));
     }
     try {
-      await taskService.delete(id, req.user.id);
-      res.status(204).send();
+      const user = getAuthenticatedUser(req);
+      await taskService.delete(id, user.id);
+      return res.status(204).send();
     } catch (error: any) {
-      res.status(400).json(errorResponse(error.message));
+      return res.status(400).json(errorResponse(error.message));
     }
   },
 
-  async addComment(req: AuthRequest, res: Response) {
-    if (!req.user) {
-      res.status(401).json(errorResponse('Não autenticado'));
-      return;
-    }
-    const { id } = req.params;
-    if (!id || typeof id !== 'string') {
-      res.status(400).json(errorResponse('ID inválido'));
-      return;
+  async addComment(req: Request, res: Response) {
+    const id = req.params.id as string;
+    if (!id) {
+      return res.status(400).json(errorResponse('ID inválido'));
     }
     try {
-      const comment = await taskService.addComment(id, req.user.id, req.body);
-      res.status(201).json(successResponse(comment, 'Comentário adicionado'));
+      const user = getAuthenticatedUser(req);
+      const comment = await taskService.addComment(id, user.id, req.body);
+      return res.status(201).json(successResponse(comment, 'Comentário adicionado'));
     } catch (error: any) {
-      res.status(400).json(errorResponse(error.message));
+      return res.status(400).json(errorResponse(error.message));
     }
   },
 
-  async getComments(req: AuthRequest, res: Response) {
-    if (!req.user) {
-      res.status(401).json(errorResponse('Não autenticado'));
-      return;
-    }
-    const { id } = req.params;
-    if (!id || typeof id !== 'string') {
-      res.status(400).json(errorResponse('ID inválido'));
-      return;
+  async getComments(req: Request, res: Response) {
+    const id = req.params.id as string;
+    if (!id) {
+      return res.status(400).json(errorResponse('ID inválido'));
     }
     try {
-      const comments = await taskService.getComments(id, req.user.id);
-      res.json(successResponse(comments));
+      const user = getAuthenticatedUser(req);
+      const comments = await taskService.getComments(id, user.id);
+      return res.json(successResponse(comments));
     } catch (error: any) {
-      res.status(400).json(errorResponse(error.message));
+      return res.status(400).json(errorResponse(error.message));
     }
   },
 };

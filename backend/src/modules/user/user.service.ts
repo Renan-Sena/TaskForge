@@ -1,8 +1,11 @@
-// backend/src/modules/user/user.service.ts (trecho adicionado)
-
 import { userRepository } from './user.repository.js';
 import { hashPassword, comparePassword } from '../../utils/hash.js';
-import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../../utils/token.js';
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyRefreshToken,
+  hashRefreshToken,
+} from '../../utils/token.js';
 import type { UserCreateInput, LoginInput, AuthResponse, UserResponse } from './user.types.js';
 
 export const userService = {
@@ -13,10 +16,15 @@ export const userService = {
     const hashedPassword = await hashPassword(input.password);
     const user = await userRepository.create({ ...input, password: hashedPassword });
 
-    const accessToken = generateAccessToken({ id: user.id, email: user.email, name: user.name });
-    const refreshToken = generateRefreshToken({ id: user.id, email: user.email, name: user.name });
+    const accessToken = generateAccessToken({
+      id: user.id,
+      email: user.email,
+      name: user.name,
+    });
+    const refreshToken = generateRefreshToken({ id: user.id });
+    const hashedRefreshToken = hashRefreshToken(refreshToken);
 
-    await userRepository.updateRefreshToken(user.id, refreshToken);
+    await userRepository.updateRefreshToken(user.id, hashedRefreshToken);
 
     return {
       user: {
@@ -34,15 +42,20 @@ export const userService = {
 
   async login(input: LoginInput): Promise<AuthResponse> {
     const user = await userRepository.findByEmail(input.email);
-    if (!user) throw new Error('Email ou senha inválidos');
+    if (!user || !user.password) throw new Error('Email ou senha inválidos');
 
     const isValid = await comparePassword(input.password, user.password);
     if (!isValid) throw new Error('Email ou senha inválidos');
 
-    const accessToken = generateAccessToken({ id: user.id, email: user.email, name: user.name });
-    const refreshToken = generateRefreshToken({ id: user.id, email: user.email, name: user.name });
+    const accessToken = generateAccessToken({
+      id: user.id,
+      email: user.email,
+      name: user.name,
+    });
+    const refreshToken = generateRefreshToken({ id: user.id });
+    const hashedRefreshToken = hashRefreshToken(refreshToken);
 
-    await userRepository.updateRefreshToken(user.id, refreshToken);
+    await userRepository.updateRefreshToken(user.id, hashedRefreshToken);
 
     return {
       user: {
@@ -58,22 +71,41 @@ export const userService = {
     };
   },
 
-  async refreshToken(refreshToken: string): Promise<{ accessToken: string }> {
-    const decoded = verifyRefreshToken(refreshToken);
-    if (!decoded) throw new Error('Refresh token inválido');
+  async refreshToken(oldRefreshToken: string) {
+    const payload = verifyRefreshToken(oldRefreshToken);
+    if (!payload || !payload.id) {
+      throw new Error('Refresh token inválido ou expirado');
+    }
 
-    const user = await userRepository.findById(decoded.id);
-    if (!user) throw new Error('Usuário não encontrado');
+    const hashed = hashRefreshToken(oldRefreshToken);
+    const user = await userRepository.findByRefreshTokenHash(hashed);
+    if (!user) {
+      throw new Error('Refresh token não encontrado ou já revogado');
+    }
 
-    const newAccessToken = generateAccessToken({ id: user.id, email: user.email, name: user.name });
-    return { accessToken: newAccessToken };
+    // Invalida token antigo
+    await userRepository.updateRefreshToken(user.id, null);
+
+    const newAccessToken = generateAccessToken({
+      id: user.id,
+      email: user.email,
+      name: user.name,
+    });
+    const newRefreshToken = generateRefreshToken({ id: user.id });
+    const newHashed = hashRefreshToken(newRefreshToken);
+
+    await userRepository.updateRefreshToken(user.id, newHashed);
+
+    return {
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
+    };
   },
 
   async logout(userId: string): Promise<void> {
     await userRepository.updateRefreshToken(userId, null);
   },
 
-  // 🔹 NOVO MÉTODO ADICIONADO
   async getUserById(userId: string): Promise<UserResponse> {
     const user = await userRepository.findById(userId);
     if (!user) throw new Error('Usuário não encontrado');

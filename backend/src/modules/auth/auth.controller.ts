@@ -1,19 +1,49 @@
-import { Request, Response } from 'express';
-import passport from '../../lib/passaport.js';
-import { authService } from './auth.service.js';
+import type { Request, Response } from 'express';
+import { container } from '../../shared/container.js';
 import { successResponse, errorResponse } from '../../utils/apiResponse.js';
 
-export const authController = {
-  googleAuth: passport.authenticate('google', { scope: ['profile', 'email'] }),
+const authService = container.authService;
 
-  googleCallback: (req: Request, res: Response) => {
-    passport.authenticate('google', { session: false }, async (err: any, user: any) => {
-      if (err || !user) {
-        return res.redirect(`${process.env.FRONTEND_URL}/login?error=oauth_failed`);
+export const authController = {
+  googleAuth(req: Request, res: Response) {
+    // Redireciona para o Google (Passport cuida disso)
+    // Este método pode não ser usado diretamente se o Passport estiver configurado na rota
+    res.redirect('/auth/google/callback');
+  },
+
+  async googleCallback(req: Request, res: Response) {
+    try {
+      const user = req.user as any;
+      if (!user) {
+        return res.status(401).json(errorResponse('Falha na autenticação Google'));
       }
-      const { accessToken, refreshToken } = await authService.handleOAuthLogin(user, req.ip || '');
-      // Redireciona para o frontend com tokens (exemplo via query string ou cookie)
-      res.redirect(`${process.env.FRONTEND_URL}/auth/callback?accessToken=${accessToken}&refreshToken=${refreshToken}`);
-    })(req, res);
+      const ip = req.ip || req.socket.remoteAddress || '';
+      const result = await authService.handleOAuthLogin(user, ip);
+      return res.json(successResponse(result, 'Login com Google realizado com sucesso'));
+    } catch (error: any) {
+      return res.status(400).json(errorResponse(error.message));
+    }
+  },
+
+  async refresh(req: Request, res: Response) {
+    const { refreshToken } = req.body;
+    if (!refreshToken) {
+      return res.status(400).json(errorResponse('Refresh token não fornecido'));
+    }
+    const ip = req.ip || req.socket.remoteAddress || '';
+    try {
+      const tokens = await authService.refreshTokens(refreshToken, ip);
+      return res.json(successResponse(tokens, 'Tokens renovados'));
+    } catch (error: any) {
+      return res.status(403).json(errorResponse(error.message));
+    }
+  },
+
+  async logout(req: Request, res: Response) {
+    const { refreshToken } = req.body;
+    if (refreshToken) {
+      await authService.logout(refreshToken);
+    }
+    return res.json(successResponse(null, 'Logout realizado'));
   },
 };
