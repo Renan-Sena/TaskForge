@@ -10,6 +10,7 @@ import userRoutes from './modules/user/user.routes.js';
 import projectRoutes from './modules/project/project.routes.js';
 import taskRoutes from './modules/task/task.routes.js';
 import adminRoutes from './modules/admin/admin.routes.js';
+import authRoutes from './modules/auth/auth.routes.js';
 
 export const app = express();
 
@@ -19,11 +20,11 @@ app.use(httpLogger);
 app.use(limiter);
 
 // Rotas da API
-app.use(express.json());
 app.use('/api/v1/auth', userRoutes);
 app.use('/api/v1/projects', projectRoutes);
 app.use('/api/v1/tasks', taskRoutes);
 app.use('/api/v1/admin', adminRoutes);
+app.use('/api/v1/auth', authRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
