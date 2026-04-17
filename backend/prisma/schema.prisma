@@ -158,3 +158,19 @@ model Activity {
 
   @@map("activities")
 }
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?  @map("user_id") 
+  email     String?                   
+  action    String   
+  ip        String?
+  userAgent String?  @map("user_agent")
+  metadata  Json?                    
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([email])
+  @@index([createdAt])
+  @@map("audit_logs")
+}

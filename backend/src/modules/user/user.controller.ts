@@ -15,7 +15,11 @@ export const userController = {
 
   async login(req: Request, res: Response) {
     try {
-      const result = await userService.login(req.body);
+      const metadata = {
+        ip: req.ip || req.socket.remoteAddress,
+        userAgent: req.headers['user-agent'],
+      };
+      const result = await userService.login(req.body, metadata);
       return res.json(successResponse(result, 'Login realizado com sucesso'));
     } catch (error: any) {
       return res.status(401).json(errorResponse(error.message));
@@ -28,7 +32,11 @@ export const userController = {
       return res.status(400).json(errorResponse('Refresh token não fornecido'));
     }
     try {
-      const result = await userService.refreshToken(refreshToken);
+      const metadata = {
+        ip: req.ip || req.socket.remoteAddress,
+        userAgent: req.headers['user-agent'],
+      };
+      const result = await userService.refreshToken(refreshToken, metadata);
       return res.json(successResponse(result, 'Token renovado com sucesso'));
     } catch (error: any) {
       return res.status(403).json(errorResponse(error.message));
@@ -37,7 +45,12 @@ export const userController = {
 
   async logout(req: Request, res: Response) {
     const user = getAuthenticatedUser(req);
-    await userService.logout(user.id);
+    const metadata = {
+      ip: req.ip || req.socket.remoteAddress,
+      userAgent: req.headers['user-agent'],
+      email: user.email,
+    };
+    await userService.logout(user.id, metadata);
     return res.json(successResponse(null, 'Logout realizado com sucesso'));
   },
 
@@ -45,5 +58,5 @@ export const userController = {
     const user = getAuthenticatedUser(req);
     const fullUser = await userService.getUserById(user.id);
     return res.json(successResponse(fullUser));
-  }
+  },
 };
