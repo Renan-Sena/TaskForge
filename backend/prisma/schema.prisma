@@ -1,0 +1,156 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id             String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name           String
+  email          String          @unique
+  password       String
+  avatar         String?
+  role           String          @default("user")
+  created_at     DateTime        @default(now())
+  updated_at     DateTime        @updatedAt
+  activities     Activity[]
+  uploadedFiles  Attachment[]    @relation("UploadedBy")
+  comments       Comment[]
+  notifications  Notification[]
+  memberProjects ProjectMember[]
+  ownedProjects  Project[]       @relation("Owner")
+  reminders      Reminder[]
+  assignedTasks  Task[]          @relation("Assignee")
+  createdTasks   Task[]          @relation("Creator")
+
+  @@map("users")
+}
+
+model Project {
+  id            String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name          String
+  description   String?
+  ownerId       String          @db.Uuid
+  created_at    DateTime        @default(now())
+  updated_at    DateTime        @updatedAt
+  activities    Activity[]
+  notifications Notification[]
+  members       ProjectMember[]
+  owner         User            @relation("Owner", fields: [ownerId], references: [id], onDelete: Cascade)
+  tasks         Task[]
+
+  @@map("projects")
+}
+
+model ProjectMember {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  projectId  String   @db.Uuid
+  userId     String   @db.Uuid
+  role       String   @default("member")
+  created_at DateTime @default(now())
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId])
+  @@map("project_members")
+}
+
+model Task {
+  id            String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title         String
+  description   String?
+  status        String         @default("todo")
+  priority      String         @default("medium")
+  dueDate       DateTime?
+  projectId     String         @db.Uuid
+  createdById   String         @db.Uuid
+  assignedToId  String?        @db.Uuid
+  created_at    DateTime       @default(now())
+  updated_at    DateTime       @updatedAt
+  activities    Activity[]
+  attachments   Attachment[]
+  comments      Comment[]
+  notifications Notification[]
+  reminders     Reminder[]
+  assignedTo    User?          @relation("Assignee", fields: [assignedToId], references: [id])
+  createdBy     User           @relation("Creator", fields: [createdById], references: [id])
+  project       Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("tasks")
+}
+
+model Comment {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  content    String
+  taskId     String   @db.Uuid
+  userId     String   @db.Uuid
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  task       Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id])
+
+  @@map("comments")
+}
+
+model Notification {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  type       String
+  title      String
+  message    String
+  userId     String   @db.Uuid
+  taskId     String?  @db.Uuid
+  projectId  String?  @db.Uuid
+  isRead     Boolean  @default(false)
+  created_at DateTime @default(now())
+  project    Project? @relation(fields: [projectId], references: [id])
+  task       Task?    @relation(fields: [taskId], references: [id])
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model Attachment {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  filename     String
+  url          String
+  taskId       String   @db.Uuid
+  uploadedById String   @db.Uuid
+  created_at   DateTime @default(now())
+  task         Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  uploadedBy   User     @relation("UploadedBy", fields: [uploadedById], references: [id])
+
+  @@map("attachments")
+}
+
+model Reminder {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title        String
+  description  String?
+  reminderTime DateTime
+  taskId       String?  @db.Uuid
+  userId       String   @db.Uuid
+  isCompleted  Boolean  @default(false)
+  created_at   DateTime @default(now())
+  task         Task?    @relation(fields: [taskId], references: [id])
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("reminders")
+}
+
+model Activity {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  action      String
+  description String
+  userId      String   @db.Uuid
+  projectId   String?  @db.Uuid
+  taskId      String?  @db.Uuid
+  created_at  DateTime @default(now())
+  project     Project? @relation(fields: [projectId], references: [id])
+  task        Task?    @relation(fields: [taskId], references: [id])
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@map("activities")
+}
