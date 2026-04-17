@@ -1,21 +1,22 @@
 import { Router } from 'express';
-import { userController } from '../user/user.controller.js'; // importe o controller de usuário
+import { userController } from '../user/user.controller.js';
 import { authController } from './auth.controller.js';
 import { authenticateToken } from '../../middleware/auth.js';
 import { validate } from '../../middleware/validation.js';
+import { passwordSchema } from '../../utils/validation/password.js';
 import { z } from 'zod/v3';
 
 const router = Router();
 
 const registerSchema = z.object({
-  name: z.string().min(2),
-  email: z.string().email(),
-  password: z.string().min(6),
+  name: z.string().min(2, 'Nome deve ter no mínimo 2 caracteres'),
+  email: z.string().email('Email inválido'),
+  password: passwordSchema,  
 });
 
 const loginSchema = z.object({
-  email: z.string().email(),
-  password: z.string(),
+  email: z.string().email('Email inválido'),
+  password: z.string().min(8, 'A senha deve ter no mínimo 8 caracteres'),
 });
 
 const refreshSchema = z.object({

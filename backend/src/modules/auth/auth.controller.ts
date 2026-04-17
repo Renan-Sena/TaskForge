@@ -6,8 +6,6 @@ const authService = container.authService;
 
 export const authController = {
   googleAuth(req: Request, res: Response) {
-    // Redireciona para o Google (Passport cuida disso)
-    // Este método pode não ser usado diretamente se o Passport estiver configurado na rota
     res.redirect('/auth/google/callback');
   },
 
