@@ -11,7 +11,7 @@ const router = Router();
 const registerSchema = z.object({
   name: z.string().min(2, 'Nome deve ter no mínimo 2 caracteres'),
   email: z.string().email('Email inválido'),
-  password: passwordSchema,  
+  password: passwordSchema,
 });
 
 const loginSchema = z.object({
@@ -23,12 +23,25 @@ const refreshSchema = z.object({
   refreshToken: z.string(),
 });
 
+const enable2FASchema = z.object({
+  token: z.string().length(6, 'Token deve ter 6 dígitos'),
+});
+
+const verify2FASchema = z.object({
+  tempToken: z.string(),
+  token: z.string().length(6, 'Token deve ter 6 dígitos'),
+});
+
 router.post('/register', validate(registerSchema), userController.register);
 router.post('/login', validate(loginSchema), userController.login);
 router.post('/refresh', validate(refreshSchema), authController.refresh);
 router.post('/logout', authController.logout);
+router.post('/verify-2fa', validate(verify2FASchema), authController.verify2FA);
 
 router.get('/me', authenticateToken, userController.me);
+router.get('/2fa/generate', authenticateToken, authController.generate2FASecret);
+router.post('/2fa/enable', authenticateToken, validate(enable2FASchema), authController.enable2FA);
+router.post('/2fa/disable', authenticateToken, authController.disable2FA);
 
 router.get('/google', authController.googleAuth);
 router.get('/google/callback', authController.googleCallback);

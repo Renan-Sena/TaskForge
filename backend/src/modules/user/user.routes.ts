@@ -1,4 +1,3 @@
-// backend/src/modules/user/user.routes.ts
 import { Router } from 'express';
 import { userController } from './user.controller.js';
 import { authenticateToken } from '../../middleware/auth.js';
@@ -7,7 +6,6 @@ import { z } from 'zod/v3';
 
 const router = Router();
 
-// Schemas PLANOS (sem .object({ body: ... }))
 const registerSchema = z.object({
   name: z.string().min(2),
   email: z.string().email(),

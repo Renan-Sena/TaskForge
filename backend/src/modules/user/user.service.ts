@@ -8,6 +8,8 @@ import {
 } from '../../utils/token.js';
 import type { UserCreateInput, LoginInput, AuthResponse, UserResponse } from './user.types.js';
 import { container } from '../../shared/container.js';
+import jwt from 'jsonwebtoken';
+import { env } from '../../config/env.js';
 
 const auditService = container.auditService;
 
@@ -43,8 +45,9 @@ export const userService = {
     };
   },
 
-  async login(input: LoginInput, metadata?: { ip?: string; userAgent?: string }): Promise<AuthResponse> {
+  async login(input: LoginInput, metadata?: { ip?: string; userAgent?: string }) {
     const user = await userRepository.findByEmail(input.email);
+    
     if (!user || !user.password) {
       await auditService.log({
         email: input.email,
@@ -67,6 +70,19 @@ export const userService = {
         metadata: { reason: 'Senha incorreta' },
       });
       throw new Error('Email ou senha inválidos');
+    }
+
+    const twoFactorData = await userRepository.findTwoFactorSecret(user.id);
+    if (twoFactorData?.twoFactorEnabled) {
+      const tempToken = jwt.sign(
+        { userId: user.id, purpose: '2fa' },
+        env.JWT_SECRET,
+        { expiresIn: '5m' }
+      );
+      return {
+        requiresTwoFactor: true,
+        tempToken,
+      };
     }
 
     const accessToken = generateAccessToken({
@@ -126,7 +142,6 @@ export const userService = {
       throw new Error('Refresh token não encontrado ou já revogado');
     }
 
-    // Invalida token antigo
     await userRepository.updateRefreshToken(user.id, null);
 
     const newAccessToken = generateAccessToken({
@@ -139,9 +154,6 @@ export const userService = {
 
     await userRepository.updateRefreshToken(user.id, newHashed);
 
-    // Opcional: log de refresh bem‑sucedido
-    // await auditService.log({ ... });
-
     return {
       accessToken: newAccessToken,
       refreshToken: newRefreshToken,
@@ -150,7 +162,6 @@ export const userService = {
 
   async logout(userId: string, metadata?: { ip?: string; userAgent?: string; email?: string }): Promise<void> {
     await userRepository.updateRefreshToken(userId, null);
-
     await auditService.log({
       userId,
       email: metadata?.email,
