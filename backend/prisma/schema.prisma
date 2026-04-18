@@ -16,6 +16,10 @@ model User {
   role           String          @default("user")
   created_at     DateTime        @default(now())
   updated_at     DateTime        @updatedAt
+  googleId       String?         @unique
+  lastLoginAt    DateTime?
+  lastLoginIp    String?
+  refreshToken   String?
   activities     Activity[]
   uploadedFiles  Attachment[]    @relation("UploadedBy")
   comments       Comment[]
@@ -25,10 +29,10 @@ model User {
   reminders      Reminder[]
   assignedTasks  Task[]          @relation("Assignee")
   createdTasks   Task[]          @relation("Creator")
-  googleId       String?         @unique
-  refreshToken   String?
-  lastLoginAt    DateTime?
-  lastLoginIp    String?
+  twoFactorSecret   String?        @map("two_factor_secret") 
+  twoFactorEnabled  Boolean        @default(false) @map("two_factor_enabled")
+  twoFactorVerified Boolean        @default(false) @map("two_factor_verified") 
+  backupCodes       String[]       @map("backup_codes") 
 
   @@map("users")
 }
@@ -63,25 +67,25 @@ model ProjectMember {
 }
 
 model Task {
-  id            String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  title         String
-  description   String?
-  status        String         @default("todo")
-  priority      String         @default("medium")
-  dueDate       DateTime?
-  projectId     String         @db.Uuid
-  createdById   String         @db.Uuid
-  assignedToId  String?        @db.Uuid
-  created_at    DateTime       @default(now())
-  updated_at    DateTime       @updatedAt
-  activities    Activity[]
-  attachments   Attachment[]
-  comments      Comment[]
-  notifications Notification[]
-  reminders     Reminder[]
-  assignedTo    User?          @relation("Assignee", fields: [assignedToId], references: [id])
-  createdBy     User           @relation("Creator", fields: [createdById], references: [id])
-  project       Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  id                String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title             String
+  description       String?
+  status            String         @default("todo")
+  priority          String         @default("medium")
+  dueDate           DateTime?
+  projectId         String         @db.Uuid
+  createdById       String         @db.Uuid
+  assignedToId      String?        @db.Uuid
+  created_at        DateTime       @default(now())
+  updated_at        DateTime       @updatedAt
+  activities        Activity[]
+  attachments       Attachment[]
+  comments          Comment[]
+  notifications     Notification[]
+  reminders         Reminder[]
+  assignedTo        User?          @relation("Assignee", fields: [assignedToId], references: [id])
+  createdBy         User           @relation("Creator", fields: [createdById], references: [id])
+  project           Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@map("tasks")
 }
@@ -161,12 +165,12 @@ model Activity {
 
 model AuditLog {
   id        String   @id @default(uuid())
-  userId    String?  @map("user_id") 
-  email     String?                   
-  action    String   
+  userId    String?  @map("user_id")
+  email     String?
+  action    String
   ip        String?
   userAgent String?  @map("user_agent")
-  metadata  Json?                    
+  metadata  Json?
   createdAt DateTime @default(now()) @map("created_at")
 
   @@index([userId])

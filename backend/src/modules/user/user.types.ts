@@ -24,3 +24,10 @@ export interface AuthResponse {
   accessToken: string;
   refreshToken: string;
 }
+
+export interface LoginResponseWith2FA {
+  requiresTwoFactor: true;
+  tempToken: string;
+}
+
+export type LoginResult = AuthResponse | LoginResponseWith2FA;
