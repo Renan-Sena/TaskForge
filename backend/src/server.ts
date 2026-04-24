@@ -1,18 +1,18 @@
-import 'dotenv/config';  // ← ESSENCIAL: carrega variáveis do .env
+import 'dotenv/config';
 import { app } from './app.js';
 import { env } from './config/env.js';
 import { logger } from './config/logger.js';
 
 const server = app.listen(env.PORT, () => {
-  logger.info(`🚀 Servidor rodando em http://localhost:${env.PORT}`);
-  logger.info(`📝 Ambiente: ${env.NODE_ENV}`);
+  logger.info(`🚀 Server running on http://localhost:${env.PORT}`);
+  logger.info(`📝 environment: ${env.NODE_ENV}`);
 });
 
 // Graceful shutdown
 const shutdown = () => {
-  logger.info('🛑 Encerrando servidor...');
+  logger.info('🛑 Closing server...');
   server.close(async () => {
-    logger.info('✅ Servidor encerrado');
+    logger.info('✅ Server closed');
     process.exit(0);
   });
 };
