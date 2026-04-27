@@ -29,8 +29,12 @@ const enable2FASchema = z.object({
 });
 
 const verify2FASchema = z.object({
-  tempToken: z.string(),
-  token: z.string().length(6, 'Token deve ter 6 dígitos'),
+  tempToken: z.string().min(1),
+  token: z.string().min(6).max(9),   
+});
+
+const disable2FASchema = z.object({
+  password: z.string().min(1, 'Password is required'),
 });
 
 //Public routes with strict limits
@@ -44,7 +48,8 @@ router.post('/verify-2fa', strictAuthLimiter, validate(verify2FASchema), authCon
 router.get('/me', moderateApiLimiter, authenticateToken, userController.me);
 router.get('/2fa/generate', moderateApiLimiter, authenticateToken, authController.generate2FASecret);
 router.post('/2fa/enable', moderateApiLimiter, authenticateToken, validate(enable2FASchema), authController.enable2FA);
-router.post('/2fa/disable', moderateApiLimiter, authenticateToken, authController.disable2FA);
+router.post('/2fa/disable', authenticateToken, validate(disable2FASchema), authController.disable2FA);
+router.post('/2fa/regenerate-backup-codes', authenticateToken, authController.regenerateBackupCodes);
 
 router.get('/google', authController.googleAuth);
 router.get('/google/callback', authController.googleCallback);

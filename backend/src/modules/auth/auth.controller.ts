@@ -51,7 +51,7 @@ export const authController = {
     const user = getAuthenticatedUser(req);
     try {
       const { qrCodeDataURL, otpauthUrl } = await twoFactorService.generateSecret(user.id, user.email);
-      return res.json(successResponse({ qrCodeDataURL, otpauthUrl }, 'QR Code gerado com sucesso'));
+      return res.json(successResponse({ qrCodeDataURL, otpauthUrl }, 'QR Code generated successfully'));
     } catch (error: any) {
       return res.status(400).json(errorResponse(error.message));
     }
@@ -61,9 +61,19 @@ export const authController = {
     const user = getAuthenticatedUser(req);
     const { token } = req.body;
     try {
-      const enabled = await twoFactorService.verifyAndEnable(user.id, token);
-      if (enabled) {
-        return res.json(successResponse(null, '2FA ativado com sucesso'));
+      const result = await twoFactorService.verifyAndEnable(user.id, token);
+      if (result.enabled) {
+        await container.auditService.log({
+          userId: user.id,
+          email: user.email,
+          action: '2FA_ENABLED',
+          ip: req.ip || req.socket.remoteAddress || '',
+          userAgent: req.headers['user-agent'] || '',
+        });
+        return res.json(successResponse(
+          { backupCodes: result.backupCodes },
+          '2FA successfully activated. Keep the backup codes in a safe place.'
+        ));
       } else {
         return res.status(400).json(errorResponse('Token inválido'));
       }
@@ -72,11 +82,22 @@ export const authController = {
     }
   },
 
+
   async disable2FA(req: Request, res: Response) {
     const user = getAuthenticatedUser(req);
+    const { password } = req.body;
     try {
-      await container.twoFactorService.disable(user.id);
-      return res.json(successResponse(null, '2FA desativado com sucesso'));
+      await twoFactorService.disableWithPassword(user.id, password);
+
+      await container.auditService.log({
+        userId: user.id,
+        email: user.email,
+        action: '2FA_DISABLED',
+        ip: req.ip || req.socket.remoteAddress || '',
+        userAgent: req.headers['user-agent'] || '',
+      });
+
+      return res.json(successResponse(null, '2FA disabled successfully'));
     } catch (error: any) {
       return res.status(400).json(errorResponse(error.message));
     }
@@ -87,9 +108,29 @@ export const authController = {
     const ip = req.ip || req.socket.remoteAddress || '';
     try {
       const result = await authService.verify2FA(tempToken, token, ip);
-      return res.json(successResponse(result, 'Autenticação concluída'));
+      return res.json(successResponse(result, 'Authentication completed'));
     } catch (error: any) {
       return res.status(401).json(errorResponse(error.message));
+    }
+  },
+
+  async regenerateBackupCodes(req: Request, res: Response) {
+    const user = getAuthenticatedUser(req);
+    try {
+      const backupCodes = await twoFactorService.regenerateBackupCodes(user.id);
+      await container.auditService.log({
+        userId: user.id,
+        email: user.email,
+        action: '2FA_BACKUP_CODES_REGENERATED',
+        ip: req.ip || req.socket.remoteAddress || '',
+        userAgent: req.headers['user-agent'] || '',
+      });
+      return res.json(successResponse(
+        { backupCodes },
+        'New backup codes have been generated. Keep them in a safe place.'
+      ));
+    } catch (error: any) {
+      return res.status(400).json(errorResponse(error.message));
     }
   },
 };

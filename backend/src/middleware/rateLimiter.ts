@@ -8,25 +8,25 @@ import rateLimit from 'express-rate-limit';
 export const createRateLimiter = (
   windowMs: number = 60 * 1000,
   max: number = 100,
-  message: string = 'Muitas requisições. Tente novamente mais tarde.'
+  message: string = 'Too many requests. Please try again later.'
 ) =>
   rateLimit({
     windowMs,
     max,
     standardHeaders: true, 
     legacyHeaders: false,
-    message: { error: 'Muitas requisições', details: message },
-    skip: () => process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development',
+    message: { error: 'Too many requests', details: message },
+    skip: () => process.env.NODE_ENV === 'homolog' || process.env.NODE_ENV === 'development',
   });
 
 export const strictAuthLimiter = createRateLimiter(
   60 * 1000,
   5,
-  'Muitas tentativas de autenticação. Aguarde 1 minuto.'
+  'Too many authentication attempts. Please wait 1 minute.'
 );
 
 export const moderateApiLimiter = createRateLimiter(
   60 * 1000,
   100,
-  'Limite de requisições excedido. Tente novamente.'
+  'Request limit exceeded. Please try again.'
 );

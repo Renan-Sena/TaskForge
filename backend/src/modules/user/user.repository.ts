@@ -2,6 +2,7 @@ import { prisma } from '../../lib/prisma.js';
 import type { IAuthUserRepository } from '../auth/interfaces/IAuthUserRepository.js';
 import type { IUser2FARepository } from './interfaces/IUser2FARepository.js';
 import crypto from 'crypto';
+import bcrypt from 'bcryptjs';
 
 const ENCRYPTION_KEY = process.env.TWO_FACTOR_ENCRYPTION_KEY;
 if (!ENCRYPTION_KEY) {
@@ -109,6 +110,43 @@ export const userRepository = {
       },
     });
   },
+
+  /**
+   * @param userId 
+   * @param backupCodesHashes 
+   */
+  async enableTwoFactorWithBackupCodes(userId: string, backupCodesHashes: string[]): Promise<void> {
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        twoFactorEnabled: true,
+        twoFactorVerified: true,
+        backupCodes: backupCodesHashes,
+      },
+    });
+  },
+
+  async getBackupCodesHashes(userId: string): Promise<string[]> {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { backupCodes: true },
+    });
+    return user?.backupCodes ?? [];
+  },
+
+  async removeBackupCode(userId: string, codeHash: string): Promise<void> {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { backupCodes: true },
+    });
+    if (user) {
+      const updated = user.backupCodes.filter(h => h !== codeHash);
+      await prisma.user.update({
+        where: { id: userId },
+        data: { backupCodes: updated },
+      });
+    }
+  },
 };
 
 const adaptUser = (user: any) => {
@@ -119,7 +157,7 @@ const adaptUser = (user: any) => {
     name: user.name,
     avatar: user.avatar,
     role: user.role,
-    createdAt: user.created_at,  
+    createdAt: user.created_at,
   };
 };
 
@@ -133,5 +171,7 @@ export const authUserRepository: IAuthUserRepository = {
   },
 };
 
+// ---------------- Verificações de tipo ----------------
 const _typeCheckAuth: IAuthUserRepository = authUserRepository;
+// O IUser2FARepository precisa ser atualizado para incluir os novos métodos, mas a verificação continua válida.
 const _typeCheck2FA: IUser2FARepository = userRepository;
