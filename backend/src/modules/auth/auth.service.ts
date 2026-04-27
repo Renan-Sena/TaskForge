@@ -41,13 +41,13 @@ export class AuthService {
   async refreshTokens(oldRefreshToken: string, ip: string) {
     const payload = verifyRefreshToken(oldRefreshToken);
     if (!payload || !payload.id) {
-      throw new Error('Refresh token inválido ou expirado');
+      throw new Error('Refresh token invalid or expired');
     }
 
     const hashed = hashRefreshToken(oldRefreshToken);
     const user = await this.userRepo.findByRefreshTokenHash(hashed);
     if (!user) {
-      throw new Error('Refresh token já revogado ou inválido');
+      throw new Error('Refresh token already revoked or invalid');
     }
 
     await this.userRepo.updateRefreshToken(user.id, null);
@@ -80,29 +80,35 @@ export class AuthService {
     }
   }
 
-  async verify2FA(tempToken: string, code: string, ip: string) {
+  async verify2FA(tempToken: string, codeOrBackup: string, ip: string) {
     let payload;
     try {
       payload = jwt.verify(tempToken, env.JWT_SECRET) as { userId: string; purpose: string };
     } catch {
-      throw new Error('Token temporário inválido ou expirado');
+      throw new Error('Temporary token invalid or expired');
     }
-    if (payload.purpose !== '2fa') throw new Error('Token com propósito inválido');
+    if (payload.purpose !== '2fa') throw new Error('Invalid token purpose');
 
     const userId = payload.userId;
-    const isValid = await container.twoFactorService.validateToken(userId, code);
-    if (!isValid) {
-      await container.auditService.log({
-        userId,
-        action: 'LOGIN_2FA_FAILURE',
-        ip,
-        metadata: { reason: 'Código 2FA inválido' },
-      });
-      throw new Error('Código 2FA inválido');
-    }
-
     const user = await this.userRepo.findById(userId);
-    if (!user) throw new Error('Usuário não encontrado');
+    if (!user) throw new Error('User not found');
+
+    let authMethod = '2FA';
+
+    const isTOTPValid = await container.twoFactorService.validateToken(userId, codeOrBackup);
+    if (!isTOTPValid) {
+      const isBackupValid = await container.twoFactorService.validateBackupCode(userId, codeOrBackup);
+      if (!isBackupValid) {
+        await container.auditService.log({
+          userId,
+          email: user.email,
+          action: 'LOGIN_2FA_FAILURE',
+          ip,
+        });
+        throw new Error('Invalid 2FA code or backup code');
+      }
+      authMethod = '2FA_BACKUP';
+    }
 
     const accessToken = generateAccessToken({
       id: user.id,
@@ -118,7 +124,7 @@ export class AuthService {
     await container.auditService.log({
       userId,
       email: user.email,
-      action: 'LOGIN_SUCCESS_2FA',
+      action: authMethod === '2FA' ? 'LOGIN_SUCCESS_2FA' : 'LOGIN_SUCCESS_2FA_BACKUP',
       ip,
     });
 

@@ -24,4 +24,10 @@ export interface IUser2FARepository {
    * @param userId ID do usuário
    */
   disableTwoFactor(userId: string): Promise<void>;
+
+  // Backup codes
+  enableTwoFactorWithBackupCodes(userId: string, backupCodesHashes: string[]): Promise<void>;
+  getBackupCodesHashes(userId: string): Promise<string[]>;
+  removeBackupCode(userId: string, codeHash: string): Promise<void>;
+  findById(id: string): Promise<{ id: string; email: string; password: string | null } | null>;
 }
