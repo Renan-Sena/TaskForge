@@ -4,11 +4,24 @@ import { successResponse, errorResponse } from '../../utils/apiResponse.js';
 import { getAuthenticatedUser } from '../../utils/auth.js';
 
 export const projectController = {
+  async suggestConfig(req: Request, res: Response) {
+    const { focus } = req.body;
+    if (!focus || !Array.isArray(focus) || focus.length === 0) {
+      return res.status(400).json(errorResponse('A list of focus keys is required.'));
+    }
+    try {
+      const config = await projectService.suggestConfig(focus);
+      return res.json(successResponse(config, 'Configuration suggested successfully.'));
+    } catch (error: any) {
+      return res.status(400).json(errorResponse(error.message));
+    }
+  },
+
   async create(req: Request, res: Response) {
     const user = getAuthenticatedUser(req);
     try {
       const project = await projectService.create(user.id, req.body);
-      return res.status(201).json(successResponse(project, 'Projeto criado com sucesso'));
+      return res.status(201).json(successResponse(project, 'Project created successfully.'));
     } catch (error: any) {
       return res.status(400).json(errorResponse(error.message));
     }
