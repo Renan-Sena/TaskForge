@@ -2,6 +2,7 @@ import type { Request, Response } from 'express';
 import { projectService } from './project.service.js';
 import { successResponse, errorResponse } from '../../utils/apiResponse.js';
 import { getAuthenticatedUser } from '../../utils/auth.js';
+import { projectPageService } from './projectPage.service.js';
 
 export const projectController = {
   async suggestConfig(req: Request, res: Response) {
@@ -88,6 +89,50 @@ export const projectController = {
       const user = getAuthenticatedUser(req);
       await projectService.inviteMember(id, user.id, req.body);
       return res.json(successResponse(null, 'Membro convidado com sucesso'));
+    } catch (error: any) {
+      return res.status(400).json(errorResponse(error.message));
+    }
+  },
+
+  async listPages(req: Request, res: Response) {
+    const user = getAuthenticatedUser(req);
+    const projectId = req.params.id as string;
+    try {
+      const pages = await projectPageService.listPages(user.id, projectId);
+      return res.json(successResponse(pages));
+    } catch (error: any) {
+      return res.status(400).json(errorResponse(error.message));
+    }
+  },
+
+  async createPage(req: Request, res: Response) {
+    const user = getAuthenticatedUser(req);
+    const projectId = req.params.id as string;
+    try {
+      const page = await projectPageService.createPage(user.id, projectId, req.body);
+      return res.status(201).json(successResponse(page, 'Page created successfully.'));
+    } catch (error: any) {
+      return res.status(400).json(errorResponse(error.message));
+    }
+  },
+
+  async updatePage(req: Request, res: Response) {
+    const user = getAuthenticatedUser(req);
+    const pageId = req.params.pageId as string;
+    try {
+      const page = await projectPageService.updatePage(user.id, pageId, req.body);
+      return res.json(successResponse(page, 'Page updated.'));
+    } catch (error: any) {
+      return res.status(400).json(errorResponse(error.message));
+    }
+  },
+
+  async deletePage(req: Request, res: Response) {
+    const user = getAuthenticatedUser(req);
+    const pageId = req.params.pageId as string;
+    try {
+      await projectPageService.deletePage(user.id, pageId);
+      return res.status(204).send();
     } catch (error: any) {
       return res.status(400).json(errorResponse(error.message));
     }
