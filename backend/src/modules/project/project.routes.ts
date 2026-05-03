@@ -45,6 +45,13 @@ const updatePageSchema = z.object({
   order: z.number().optional(),
 });
 
+const updateColumnsSchema = z.object({
+  columns: z.array(z.object({
+    name: z.string().min(1),
+    order: z.number().int().min(0),
+  })).min(1),
+});
+
 router.post('/suggest', authenticateToken, validate(suggestSchema), projectController.suggestConfig);
 router.post('/', authenticateToken, validate(createProjectSchema), projectController.create);
 router.get('/', authenticateToken, projectController.getAll);
@@ -57,5 +64,7 @@ router.get('/:id/pages', authenticateToken, projectController.listPages);
 router.post('/:id/pages', authenticateToken, validate(createPageSchema), projectController.createPage);
 router.put('/:id/pages/:pageId', authenticateToken, validate(updatePageSchema), projectController.updatePage);
 router.delete('/:id/pages/:pageId', authenticateToken, projectController.deletePage);
+router.get('/:id/columns', authenticateToken, projectController.getColumns);
+router.put('/:id/columns', authenticateToken, validate(updateColumnsSchema), projectController.updateColumns);
 
 export default router;
