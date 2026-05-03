@@ -1,6 +1,7 @@
 export interface ProjectCreateInput {
   name: string;
   description?: string;
+  focus?: string[];   
 }
 
 export interface ProjectUpdateInput {
@@ -11,7 +12,9 @@ export interface ProjectUpdateInput {
 export interface ProjectResponse {
   id: string;
   name: string;
-  description: string | null;
+  description?: string | null;
+  focus?: string[];            
+  config?: any | null;          
   ownerId: string;
   createdAt: Date;
   updatedAt: Date;
@@ -19,7 +22,7 @@ export interface ProjectResponse {
     id: string;
     name: string;
     email: string;
-    avatar: string | null;
+    avatar?: string | null;
   };
   members: {
     id: string;
@@ -29,10 +32,10 @@ export interface ProjectResponse {
       id: string;
       name: string;
       email: string;
-      avatar: string | null;
+      avatar?: string | null;
     };
   }[];
-  stats?: {
+  stats: {
     total: number;
     todo: number;
     doing: number;

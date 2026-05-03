@@ -2,12 +2,13 @@ import { prisma } from '../../lib/prisma.js';
 import type { ProjectCreateInput, ProjectUpdateInput } from './project.types.js';
 
 export const projectRepository = {
-  async create(data: ProjectCreateInput & { ownerId: string }) {
+  async create(data: ProjectCreateInput & { ownerId: string; focus?: string[] }) {
     return prisma.project.create({
       data: {
         name: data.name,
         description: data.description ?? null,
         ownerId: data.ownerId,
+        focus: data.focus ?? [],
         members: {
           create: { userId: data.ownerId, role: 'owner' },
         },
@@ -36,6 +37,7 @@ export const projectRepository = {
           },
           orderBy: { created_at: 'desc' },
         },
+        config: true,
       },
     });
   },
@@ -86,5 +88,17 @@ export const projectRepository = {
       where: { projectId_userId: { projectId, userId } },
     });
     return member ? member.role === 'owner' || member.role === 'admin' : false;
+  },
+
+  async upsertConfig(projectId: string, modules: any[]) {
+    return prisma.projectConfig.upsert({
+      where: { projectId },
+      update: { modules },
+      create: { projectId, modules },
+    });
+  },
+
+  async getConfig(projectId: string) {
+    return prisma.projectConfig.findUnique({ where: { projectId } });
   },
 };

@@ -8,47 +8,52 @@ datasource db {
 }
 
 model User {
-  id             String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name           String
-  email          String          @unique
-  password       String?
-  avatar         String?
-  role           String          @default("user")
-  created_at     DateTime        @default(now())
-  updated_at     DateTime        @updatedAt
-  googleId       String?         @unique
-  lastLoginAt    DateTime?
-  lastLoginIp    String?
-  refreshToken   String?
-  activities     Activity[]
-  uploadedFiles  Attachment[]    @relation("UploadedBy")
-  comments       Comment[]
-  notifications  Notification[]
-  memberProjects ProjectMember[]
-  ownedProjects  Project[]       @relation("Owner")
-  reminders      Reminder[]
-  assignedTasks  Task[]          @relation("Assignee")
-  createdTasks   Task[]          @relation("Creator")
-  twoFactorSecret   String?        @map("two_factor_secret") 
-  twoFactorEnabled  Boolean        @default(false) @map("two_factor_enabled")
-  twoFactorVerified Boolean        @default(false) @map("two_factor_verified") 
-  backupCodes       String[]       @map("backup_codes") 
+  id                String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name              String
+  email             String          @unique
+  password          String?
+  avatar            String?
+  role              String          @default("user")
+  created_at        DateTime        @default(now())
+  updated_at        DateTime        @updatedAt
+  googleId          String?         @unique
+  lastLoginAt       DateTime?
+  lastLoginIp       String?
+  refreshToken      String?
+  activities        Activity[]
+  uploadedFiles     Attachment[]    @relation("UploadedBy")
+  comments          Comment[]
+  notifications     Notification[]
+  memberProjects    ProjectMember[]
+  ownedProjects     Project[]       @relation("Owner")
+  reminders         Reminder[]
+  assignedTasks     Task[]          @relation("Assignee")
+  createdTasks      Task[]          @relation("Creator")
+  twoFactorSecret   String?         @map("two_factor_secret")
+  twoFactorEnabled  Boolean         @default(false) @map("two_factor_enabled")
+  twoFactorVerified Boolean         @default(false) @map("two_factor_verified")
+  backupCodes       String[]        @map("backup_codes")
 
   @@map("users")
 }
 
 model Project {
-  id            String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name          String
-  description   String?
-  ownerId       String          @db.Uuid
-  created_at    DateTime        @default(now())
-  updated_at    DateTime        @updatedAt
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String
+  description String?
+  ownerId     String   @db.Uuid
+  focus       String[]
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  config ProjectConfig?
+  pages  ProjectPage[]
+
+  owner         User            @relation("Owner", fields: [ownerId], references: [id], onDelete: Cascade)
+  members       ProjectMember[]
+  tasks         Task[]
   activities    Activity[]
   notifications Notification[]
-  members       ProjectMember[]
-  owner         User            @relation("Owner", fields: [ownerId], references: [id], onDelete: Cascade)
-  tasks         Task[]
 
   @@map("projects")
 }
@@ -66,26 +71,67 @@ model ProjectMember {
   @@map("project_members")
 }
 
+model ProjectTemplate {
+  id          String   @id @default(uuid())
+  focus       String   @unique
+  name        String
+  description String?
+  icon        String?
+  modules     Json
+  columns     Json?
+  tasks       Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("project_templates")
+}
+
+model ProjectConfig {
+  id        String   @id @default(uuid())
+  projectId String   @unique @db.Uuid
+  modules   Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("project_configs")
+}
+
+model ProjectPage {
+  id        String   @id @default(uuid())
+  projectId String   @db.Uuid
+  title     String
+  content   String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("project_pages")
+}
+
 model Task {
-  id                String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  title             String
-  description       String?
-  status            String         @default("todo")
-  priority          String         @default("medium")
-  dueDate           DateTime?
-  projectId         String         @db.Uuid
-  createdById       String         @db.Uuid
-  assignedToId      String?        @db.Uuid
-  created_at        DateTime       @default(now())
-  updated_at        DateTime       @updatedAt
-  activities        Activity[]
-  attachments       Attachment[]
-  comments          Comment[]
-  notifications     Notification[]
-  reminders         Reminder[]
-  assignedTo        User?          @relation("Assignee", fields: [assignedToId], references: [id])
-  createdBy         User           @relation("Creator", fields: [createdById], references: [id])
-  project           Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  id            String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title         String
+  description   String?
+  status        String         @default("todo")
+  priority      String         @default("medium")
+  dueDate       DateTime?
+  projectId     String         @db.Uuid
+  createdById   String         @db.Uuid
+  assignedToId  String?        @db.Uuid
+  created_at    DateTime       @default(now())
+  updated_at    DateTime       @updatedAt
+  activities    Activity[]
+  attachments   Attachment[]
+  comments      Comment[]
+  notifications Notification[]
+  reminders     Reminder[]
+  assignedTo    User?          @relation("Assignee", fields: [assignedToId], references: [id])
+  createdBy     User           @relation("Creator", fields: [createdById], references: [id])
+  project       Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@map("tasks")
 }
