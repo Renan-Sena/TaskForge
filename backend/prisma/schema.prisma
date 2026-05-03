@@ -90,6 +90,7 @@ model ProjectConfig {
   id        String   @id @default(uuid())
   projectId String   @unique @db.Uuid
   modules   Json
+  columns   Json     @default("[]")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

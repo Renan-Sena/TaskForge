@@ -3,6 +3,7 @@ import { projectService } from './project.service.js';
 import { successResponse, errorResponse } from '../../utils/apiResponse.js';
 import { getAuthenticatedUser } from '../../utils/auth.js';
 import { projectPageService } from './projectPage.service.js';
+import { projectColumnService } from './projectColumn.service.js';
 
 export const projectController = {
   async suggestConfig(req: Request, res: Response) {
@@ -133,6 +134,28 @@ export const projectController = {
     try {
       await projectPageService.deletePage(user.id, pageId);
       return res.status(204).send();
+    } catch (error: any) {
+      return res.status(400).json(errorResponse(error.message));
+    }
+  },
+
+  async getColumns(req: Request, res: Response) {
+    const user = getAuthenticatedUser(req);
+    const projectId = req.params.id as string;
+    try {
+      const columns = await projectColumnService.getColumns(user.id, projectId);
+      return res.json(successResponse(columns));
+    } catch (error: any) {
+      return res.status(400).json(errorResponse(error.message));
+    }
+  },
+
+  async updateColumns(req: Request, res: Response) {
+    const user = getAuthenticatedUser(req);
+    const projectId = req.params.id as string;
+    try {
+      const columns = await projectColumnService.updateColumns(user.id, projectId, req.body.columns);
+      return res.json(successResponse(columns, 'Columns updated successfully.'));
     } catch (error: any) {
       return res.status(400).json(errorResponse(error.message));
     }
