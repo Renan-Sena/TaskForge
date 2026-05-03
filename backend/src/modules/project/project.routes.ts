@@ -33,6 +33,18 @@ const inviteMemberSchema = z.object({
   role: z.enum(['member', 'admin']).optional(),
 });
 
+const createPageSchema = z.object({
+  title: z.string().min(1),
+  content: z.string().optional(),
+  order: z.number().optional(),
+});
+
+const updatePageSchema = z.object({
+  title: z.string().min(1).optional(),
+  content: z.string().optional(),
+  order: z.number().optional(),
+});
+
 router.post('/suggest', authenticateToken, validate(suggestSchema), projectController.suggestConfig);
 router.post('/', authenticateToken, validate(createProjectSchema), projectController.create);
 router.get('/', authenticateToken, projectController.getAll);
@@ -40,5 +52,10 @@ router.get('/:id', authenticateToken, projectController.getById);
 router.put('/:id', authenticateToken, validate(updateProjectSchema), projectController.update);
 router.delete('/:id', authenticateToken, projectController.delete);
 router.post('/:id/invite', authenticateToken, validate(inviteMemberSchema), projectController.inviteMember);
+
+router.get('/:id/pages', authenticateToken, projectController.listPages);
+router.post('/:id/pages', authenticateToken, validate(createPageSchema), projectController.createPage);
+router.put('/:id/pages/:pageId', authenticateToken, validate(updatePageSchema), projectController.updatePage);
+router.delete('/:id/pages/:pageId', authenticateToken, projectController.deletePage);
 
 export default router;
