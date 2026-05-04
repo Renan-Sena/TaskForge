@@ -90,5 +90,6 @@ router.post('/:id/calendar/events', authenticateToken, validate(createEventSchem
 router.put('/:id/calendar/events/:eventId', authenticateToken, validate(updateEventSchema), projectController.updateCalendarEvent);
 router.delete('/:id/calendar/events/:eventId', authenticateToken, projectController.deleteCalendarEvent);
 router.get('/:id/dashboard', authenticateToken, projectController.getDashboard);
+router.get('/:id/report', authenticateToken, projectController.getProjectReport);
 
 export default router;

@@ -7,8 +7,22 @@ import { projectColumnService } from './projectColumn.service.js';
 import { calendarService } from './calendar.service.js';
 import { dashboardService } from './dashboard.service.js';
 import { buildPaginationMeta, parsePagination } from '../../utils/pagination.js';
+import { reportService } from './report.service.js';
 
 export const projectController = {
+  async getProjectReport(req: Request, res: Response) {
+    const user = getAuthenticatedUser(req);
+    const projectId = req.params.id as string;
+    const { start, end } = req.query as { start?: string; end?: string };
+    try {
+      const pdfBuffer = await reportService.generateProjectReport(projectId, user.id, start, end);
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="project-${projectId}-report.pdf"`);
+      return res.send(pdfBuffer);
+    } catch (error: any) {
+      return res.status(400).json(errorResponse(error.message));
+    }
+  },
 
   async getDashboard(req: Request, res: Response) {
     const user = getAuthenticatedUser(req);
