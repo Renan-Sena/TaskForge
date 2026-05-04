@@ -4,6 +4,15 @@ import { calendarEventRepository } from './calendarEvent.repository.js';
 import { projectPageRepository } from './projectPage.repository.js';
 
 export const dashboardService = {
+  async getAllByUser(userId: string, opts?: { skip?: number; limit?: number }) {
+    const projects = await projectRepository.findByUser(userId, opts);
+    return projects.map(formatProjectResponse);
+  },
+
+  async countByUser(userId: string): Promise<number> {
+    return projectRepository.countByUser(userId);
+  },
+
   async getDashboard(userId: string, projectId: string) {
     const project = await projectRepository.findById(projectId, userId);
     if (!project) throw new Error('Project not found or access denied');
@@ -63,3 +72,7 @@ export const dashboardService = {
     };
   },
 };
+
+function formatProjectResponse(value: { owner: { id: string; name: string; created_at: Date; updated_at: Date; email: string; password: string | null; avatar: string | null; role: string; googleId: string | null; lastLoginAt: Date | null; lastLoginIp: string | null; refreshToken: string | null; twoFactorSecret: string | null; twoFactorEnabled: boolean; twoFactorVerified: boolean; backupCodes: string[]; }; members: ({ user: { id: string; name: string; created_at: Date; updated_at: Date; email: string; password: string | null; avatar: string | null; role: string; googleId: string | null; lastLoginAt: Date | null; lastLoginIp: string | null; refreshToken: string | null; twoFactorSecret: string | null; twoFactorEnabled: boolean; twoFactorVerified: boolean; backupCodes: string[]; }; } & { id: string; created_at: Date; userId: string; projectId: string; role: string; })[]; tasks: { id: string; status: string; }[]; } & { id: string; name: string; description: string | null; ownerId: string; focus: string[]; created_at: Date; updated_at: Date; }, index: number, array: ({ owner: { id: string; name: string; created_at: Date; updated_at: Date; email: string; password: string | null; avatar: string | null; role: string; googleId: string | null; lastLoginAt: Date | null; lastLoginIp: string | null; refreshToken: string | null; twoFactorSecret: string | null; twoFactorEnabled: boolean; twoFactorVerified: boolean; backupCodes: string[]; }; members: ({ user: { id: string; name: string; created_at: Date; updated_at: Date; email: string; password: string | null; avatar: string | null; role: string; googleId: string | null; lastLoginAt: Date | null; lastLoginIp: string | null; refreshToken: string | null; twoFactorSecret: string | null; twoFactorEnabled: boolean; twoFactorVerified: boolean; backupCodes: string[]; }; } & { id: string; created_at: Date; userId: string; projectId: string; role: string; })[]; tasks: { id: string; status: string; }[]; } & { id: string; name: string; description: string | null; ownerId: string; focus: string[]; created_at: Date; updated_at: Date; })[]): unknown {
+  throw new Error('Function not implemented.');
+}

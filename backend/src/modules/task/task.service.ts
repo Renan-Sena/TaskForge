@@ -1,3 +1,4 @@
+// src/modules/task/task.service.ts
 import { taskRepository } from './task.repository.js';
 import { projectRepository } from '../project/project.repository.js';
 import { notificationService } from '../notification/notification.service.js';
@@ -13,6 +14,15 @@ export const taskService = {
   async create(userId: string, input: TaskCreateInput): Promise<TaskResponse> {
     const isMember = await projectRepository.findMember(input.projectId, userId);
     if (!isMember) throw new Error('You are not a member of this project');
+
+    // Validação: dueDate não pode estar no passado
+    if (input.dueDate) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (new Date(input.dueDate) < today) {
+        throw new Error('Due date cannot be in the past');
+      }
+    }
 
     const task = await taskRepository.create({ ...input, createdById: userId });
 
@@ -43,6 +53,15 @@ export const taskService = {
     if (!task) throw new Error('Task not found');
     const isMember = await projectRepository.findMember(task.projectId, userId);
     if (!isMember) throw new Error('Permission denied');
+
+    // Validação: dueDate não pode estar no passado
+    if (input.dueDate) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (new Date(input.dueDate) < today) {
+        throw new Error('Due date cannot be in the past');
+      }
+    }
 
     const previousAssignee = task.assignedToId;
 
@@ -123,6 +142,20 @@ export const taskService = {
 
     const comments = await taskRepository.findCommentsByTask(taskId);
     return comments.map(formatCommentResponse);
+  },
+
+  // ---------- PAGINAÇÃO ----------
+  async findByProject(projectId: string, userId: string, opts?: { skip?: number; limit?: number }) {
+    const isMember = await projectRepository.findMember(projectId, userId);
+    if (!isMember) throw new Error('Permission denied');
+    const tasks = await taskRepository.findByProject(projectId, opts);
+    return tasks.map(formatTaskResponse);
+  },
+
+  async countByProject(projectId: string, userId: string): Promise<number> {
+    const isMember = await projectRepository.findMember(projectId, userId);
+    if (!isMember) throw new Error('Permission denied');
+    return taskRepository.countByProject(projectId);
   },
 };
 

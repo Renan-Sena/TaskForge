@@ -79,9 +79,13 @@ export const projectService = {
     return formatProjectResponse(project);
   },
 
-  async getAllByUser(userId: string): Promise<ProjectResponse[]> {
-    const projects = await projectRepository.findByUser(userId);
+  async getAllByUser(userId: string, opts?: { skip?: number; limit?: number }): Promise<ProjectResponse[]> {
+    const projects = await projectRepository.findByUser(userId, opts);
     return projects.map(formatProjectResponse);
+  },
+
+  async countByUser(userId: string): Promise<number> {
+    return projectRepository.countByUser(userId);
   },
 
   async update(projectId: string, userId: string, input: ProjectUpdateInput): Promise<ProjectResponse> {

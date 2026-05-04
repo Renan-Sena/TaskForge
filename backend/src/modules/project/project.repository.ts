@@ -42,7 +42,7 @@ export const projectRepository = {
     });
   },
 
-  async findByUser(userId: string) {
+  async findByUser(userId: string, opts?: { skip?: number; limit?: number }) {
     return prisma.project.findMany({
       where: {
         OR: [{ ownerId: userId }, { members: { some: { userId } } }],
@@ -53,8 +53,19 @@ export const projectRepository = {
         tasks: { select: { id: true, status: true } },
       },
       orderBy: { created_at: 'desc' },
+      skip: opts?.skip,
+      take: opts?.limit,
     });
   },
+
+  async countByUser(userId: string): Promise<number> {
+    return prisma.project.count({
+      where: {
+        OR: [{ ownerId: userId }, { members: { some: { userId } } }],
+      },
+    });
+  },
+
 
   async update(id: string, data: ProjectUpdateInput) {
     const updateData: any = {};
