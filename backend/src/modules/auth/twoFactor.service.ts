@@ -83,6 +83,18 @@ export class TwoFactorService {
         return plainCodes;
     }
 
+    async regenerateBackupCodesWithPassword(userId: string, password: string): Promise<string[]> {
+        const fullUser = await (this.userRepo as any).findById?.(userId);
+        if (!fullUser || !fullUser.password) {
+            throw new Error('User not found or no password set (OAuth account)');
+        }
+        const isValidPassword = await comparePassword(password, fullUser.password);
+        if (!isValidPassword) {
+            throw new Error('Invalid password');
+        }
+        return this.regenerateBackupCodes(userId);
+    }
+
     async validateToken(userId: string, token: string): Promise<boolean> {
         const secretData = await this.userRepo.findTwoFactorSecret(userId);
         if (!secretData?.twoFactorSecret || !secretData.twoFactorEnabled) {

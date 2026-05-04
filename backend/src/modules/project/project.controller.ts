@@ -6,6 +6,7 @@ import { projectPageService } from './projectPage.service.js';
 import { projectColumnService } from './projectColumn.service.js';
 import { calendarService } from './calendar.service.js';
 import { dashboardService } from './dashboard.service.js';
+import { buildPaginationMeta, parsePagination } from '../../utils/pagination.js';
 
 export const projectController = {
 
@@ -43,11 +44,19 @@ export const projectController = {
     }
   },
 
+
   async getAll(req: Request, res: Response) {
     const user = getAuthenticatedUser(req);
+    const { page, limit, skip } = parsePagination(req.query as any);
     try {
-      const projects = await projectService.getAllByUser(user.id);
-      return res.json(successResponse(projects));
+      const [projects, total] = await Promise.all([
+        projectService.getAllByUser(user.id, { skip, limit }),
+        projectService.countByUser(user.id),
+      ]);
+      return res.json(successResponse({
+        data: projects,
+        meta: buildPaginationMeta(total, page, limit),
+      }));
     } catch (error: any) {
       return res.status(500).json(errorResponse(error.message));
     }

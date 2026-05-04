@@ -1,21 +1,26 @@
+// src/modules/task/task.repository.ts
 import { prisma } from '../../lib/prisma.js';
-import type { TaskCreateInput, TaskUpdateInput, CommentCreateInput } from './task.types.js';
+import { CommentCreateInput, TaskCreateInput, TaskUpdateInput } from './task.types.js';
 
 export const taskRepository = {
   async create(data: TaskCreateInput & { createdById: string }) {
     return prisma.task.create({
       data: {
         title: data.title,
-        description: data.description ?? null,
+        description: data.description,
+        priority: data.priority,
+        dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
         projectId: data.projectId,
         createdById: data.createdById,
-        assignedToId: data.assignedToId ?? null,
-        priority: data.priority ?? 'medium',
-        dueDate: data.dueDate ?? null,
+        assignedToId: data.assignedToId,
       },
       include: {
         createdBy: { select: { id: true, name: true } },
         assignedTo: { select: { id: true, name: true, avatar: true } },
+        comments: {
+          include: { user: { select: { id: true, name: true, avatar: true } } },
+          orderBy: { created_at: 'desc' },
+        },
       },
     });
   },
@@ -34,25 +39,37 @@ export const taskRepository = {
     });
   },
 
-  async findByProject(projectId: string) {
+  async findByProject(projectId: string, opts?: { skip?: number; limit?: number }) {
     return prisma.task.findMany({
       where: { projectId },
       include: {
         createdBy: { select: { id: true, name: true } },
         assignedTo: { select: { id: true, name: true, avatar: true } },
+        comments: {
+          include: { user: { select: { id: true, name: true, avatar: true } } },
+          orderBy: { created_at: 'desc' },
+        },
       },
       orderBy: { created_at: 'desc' },
+      skip: opts?.skip,
+      take: opts?.limit,
+    });
+  },
+
+  async countByProject(projectId: string): Promise<number> {
+    return prisma.task.count({
+      where: { projectId },
     });
   },
 
   async update(id: string, data: TaskUpdateInput) {
     const updateData: any = {};
     if (data.title !== undefined) updateData.title = data.title;
-    if (data.description !== undefined) updateData.description = data.description ?? null;
+    if (data.description !== undefined) updateData.description = data.description;
     if (data.status !== undefined) updateData.status = data.status;
     if (data.priority !== undefined) updateData.priority = data.priority;
-    if (data.assignedToId !== undefined) updateData.assignedToId = data.assignedToId ?? null;
-    if (data.dueDate !== undefined) updateData.dueDate = data.dueDate ?? null;
+    if (data.dueDate !== undefined) updateData.dueDate = data.dueDate ? new Date(data.dueDate) : null;
+    if (data.assignedToId !== undefined) updateData.assignedToId = data.assignedToId;
 
     return prisma.task.update({
       where: { id },

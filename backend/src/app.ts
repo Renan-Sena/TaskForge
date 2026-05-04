@@ -10,6 +10,7 @@ import taskRoutes from './modules/task/task.routes.js';
 import adminRoutes from './modules/admin/admin.routes.js';
 import authRoutes from './modules/auth/auth.routes.js'; 
 import helmet from 'helmet';
+import notificationRoutes from './modules/notification/notification.routes.js';
 
 export const app = express();
 
@@ -29,6 +30,7 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/projects', projectRoutes);
 app.use('/api/v1/tasks', taskRoutes);
 app.use('/api/v1/admin', adminRoutes);  
+app.use('/api/v1/notifications', notificationRoutes);
 
 
 app.get('/api/health', (req, res) => {

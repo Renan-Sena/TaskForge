@@ -162,6 +162,7 @@ model Notification {
   projectId  String?  @db.Uuid
   isRead     Boolean  @default(false)
   created_at DateTime @default(now())
+  
   project    Project? @relation(fields: [projectId], references: [id])
   task       Task?    @relation(fields: [taskId], references: [id])
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)

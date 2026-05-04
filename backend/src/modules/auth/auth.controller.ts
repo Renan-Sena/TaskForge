@@ -116,8 +116,9 @@ export const authController = {
 
   async regenerateBackupCodes(req: Request, res: Response) {
     const user = getAuthenticatedUser(req);
+    const { password } = req.body;
     try {
-      const backupCodes = await twoFactorService.regenerateBackupCodes(user.id);
+      const backupCodes = await container.twoFactorService.regenerateBackupCodesWithPassword(user.id, password);
       await container.auditService.log({
         userId: user.id,
         email: user.email,
@@ -125,12 +126,9 @@ export const authController = {
         ip: req.ip || req.socket.remoteAddress || '',
         userAgent: req.headers['user-agent'] || '',
       });
-      return res.json(successResponse(
-        { backupCodes },
-        'New backup codes have been generated. Keep them in a safe place.'
-      ));
+      return res.json(successResponse({ backupCodes }, 'New backup codes generated.'));
     } catch (error: any) {
       return res.status(400).json(errorResponse(error.message));
     }
-  },
+  }
 };
