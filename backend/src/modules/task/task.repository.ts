@@ -34,6 +34,12 @@ export const taskRepository = {
     });
   },
 
+  async findDueBetween(start: Date, end: Date) {
+    return prisma.task.findMany({
+      where: { dueDate: { gte: start, lte: end } },
+    });
+  },
+
   async findByProject(projectId: string) {
     return prisma.task.findMany({
       where: { projectId },

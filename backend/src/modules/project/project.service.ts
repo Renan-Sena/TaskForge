@@ -3,6 +3,7 @@ import { projectTemplateRepository } from './projectTemplate.repository.js';
 import { container } from '../../shared/container.js';
 import { userRepository } from '../user/user.repository.js';
 import type { ProjectCreateInput, ProjectUpdateInput, ProjectResponse, ProjectMemberInput } from './project.types.js';
+import { notificationService } from '../notification/notification.service.js';
 
 export const projectService = {
   async suggestConfig(focusList: string[]) {
@@ -111,7 +112,18 @@ export const projectService = {
     if (existing) throw new Error('User is already a member');
 
     await projectRepository.addMember(projectId, userToInvite.id, input.role || 'member');
-  },
+
+    const project = await projectRepository.findById(projectId, userId);
+    if (project) {
+      await notificationService.notify({
+        type: 'invited_to_project',
+        title: 'You have been invited to a project',
+        message: `You are now a member of "${project.name}".`,
+        userId: userToInvite.id,
+        projectId,
+      });
+    }
+  }
 };
 
 function formatProjectResponse(project: any): ProjectResponse {
@@ -127,8 +139,8 @@ function formatProjectResponse(project: any): ProjectResponse {
     id: project.id,
     name: project.name,
     description: project.description,
-    focus: project.focus || [],       
-    config: project.config || null,   
+    focus: project.focus || [],
+    config: project.config || null,
     ownerId: project.ownerId,
     createdAt: project.created_at,
     updatedAt: project.updated_at,
