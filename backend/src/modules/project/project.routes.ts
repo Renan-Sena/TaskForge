@@ -75,6 +75,7 @@ const updateEventSchema = z.object({
 router.post('/suggest', authenticateToken, validate(suggestSchema), projectController.suggestConfig);
 router.post('/', authenticateToken, validate(createProjectSchema), projectController.create);
 router.get('/', authenticateToken, projectController.getAll);
+router.get('/:id/export', authenticateToken, projectController.exportTasks);
 router.get('/:id', authenticateToken, projectController.getById);
 router.put('/:id', authenticateToken, validate(updateProjectSchema), projectController.update);
 router.delete('/:id', authenticateToken, projectController.delete);
