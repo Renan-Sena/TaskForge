@@ -52,6 +52,26 @@ const updateColumnsSchema = z.object({
   })).min(1),
 });
 
+const createEventSchema = z.object({
+  title: z.string().min(1),
+  description: z.string().optional(),
+  startDate: z.string().datetime(),
+  endDate: z.string().datetime().optional(),
+  allDay: z.boolean().optional(),
+  color: z.string().optional(),
+  location: z.string().optional(),
+});
+
+const updateEventSchema = z.object({
+  title: z.string().min(1).optional(),
+  description: z.string().optional(),
+  startDate: z.string().datetime().optional(),
+  endDate: z.string().datetime().nullable().optional(),
+  allDay: z.boolean().optional(),
+  color: z.string().nullable().optional(),
+  location: z.string().nullable().optional(),
+});
+
 router.post('/suggest', authenticateToken, validate(suggestSchema), projectController.suggestConfig);
 router.post('/', authenticateToken, validate(createProjectSchema), projectController.create);
 router.get('/', authenticateToken, projectController.getAll);
@@ -59,12 +79,15 @@ router.get('/:id', authenticateToken, projectController.getById);
 router.put('/:id', authenticateToken, validate(updateProjectSchema), projectController.update);
 router.delete('/:id', authenticateToken, projectController.delete);
 router.post('/:id/invite', authenticateToken, validate(inviteMemberSchema), projectController.inviteMember);
-
 router.get('/:id/pages', authenticateToken, projectController.listPages);
 router.post('/:id/pages', authenticateToken, validate(createPageSchema), projectController.createPage);
 router.put('/:id/pages/:pageId', authenticateToken, validate(updatePageSchema), projectController.updatePage);
 router.delete('/:id/pages/:pageId', authenticateToken, projectController.deletePage);
 router.get('/:id/columns', authenticateToken, projectController.getColumns);
 router.put('/:id/columns', authenticateToken, validate(updateColumnsSchema), projectController.updateColumns);
+router.get('/:id/calendar', authenticateToken, projectController.getCalendar);
+router.post('/:id/calendar/events', authenticateToken, validate(createEventSchema), projectController.createCalendarEvent);
+router.put('/:id/calendar/events/:eventId', authenticateToken, validate(updateEventSchema), projectController.updateCalendarEvent);
+router.delete('/:id/calendar/events/:eventId', authenticateToken, projectController.deleteCalendarEvent);
 
 export default router;
