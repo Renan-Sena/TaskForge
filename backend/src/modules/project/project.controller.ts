@@ -4,6 +4,7 @@ import { successResponse, errorResponse } from '../../utils/apiResponse.js';
 import { getAuthenticatedUser } from '../../utils/auth.js';
 import { projectPageService } from './projectPage.service.js';
 import { projectColumnService } from './projectColumn.service.js';
+import { calendarService } from './calendar.service.js';
 
 export const projectController = {
   async suggestConfig(req: Request, res: Response) {
@@ -156,6 +157,54 @@ export const projectController = {
     try {
       const columns = await projectColumnService.updateColumns(user.id, projectId, req.body.columns);
       return res.json(successResponse(columns, 'Columns updated successfully.'));
+    } catch (error: any) {
+      return res.status(400).json(errorResponse(error.message));
+    }
+  },
+
+  async getCalendar(req: Request, res: Response) {
+    const user = getAuthenticatedUser(req);
+    const projectId = req.params.id as string;
+    const { start, end } = req.query as { start?: string; end?: string };
+    if (!start || !end) {
+      return res.status(400).json(errorResponse('start and end query parameters are required (ISO dates).'));
+    }
+    try {
+      const data = await calendarService.getEvents(user.id, projectId, start, end);
+      return res.json(successResponse(data));
+    } catch (error: any) {
+      return res.status(400).json(errorResponse(error.message));
+    }
+  },
+
+  async createCalendarEvent(req: Request, res: Response) {
+    const user = getAuthenticatedUser(req);
+    const projectId = req.params.id as string;
+    try {
+      const event = await calendarService.createEvent(user.id, projectId, req.body);
+      return res.status(201).json(successResponse(event, 'Event created.'));
+    } catch (error: any) {
+      return res.status(400).json(errorResponse(error.message));
+    }
+  },
+
+  async updateCalendarEvent(req: Request, res: Response) {
+    const user = getAuthenticatedUser(req);
+    const eventId = req.params.eventId as string;
+    try {
+      const event = await calendarService.updateEvent(user.id, eventId, req.body);
+      return res.json(successResponse(event, 'Event updated.'));
+    } catch (error: any) {
+      return res.status(400).json(errorResponse(error.message));
+    }
+  },
+
+  async deleteCalendarEvent(req: Request, res: Response) {
+    const user = getAuthenticatedUser(req);
+    const eventId = req.params.eventId as string;
+    try {
+      await calendarService.deleteEvent(user.id, eventId);
+      return res.status(204).send();
     } catch (error: any) {
       return res.status(400).json(errorResponse(error.message));
     }
