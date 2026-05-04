@@ -236,7 +236,7 @@ model CalendarEvent {
   startDate   DateTime @map("start_date")
   endDate     DateTime? @map("end_date")
   allDay      Boolean  @default(false)
-  color       String?  // ex: "#3b82f6"
+  color       String? 
   location    String?
   createdById String   @db.Uuid
   createdAt   DateTime @default(now()) @map("created_at")

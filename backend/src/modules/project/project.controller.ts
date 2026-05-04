@@ -5,8 +5,21 @@ import { getAuthenticatedUser } from '../../utils/auth.js';
 import { projectPageService } from './projectPage.service.js';
 import { projectColumnService } from './projectColumn.service.js';
 import { calendarService } from './calendar.service.js';
+import { dashboardService } from './dashboard.service.js';
 
 export const projectController = {
+
+  async getDashboard(req: Request, res: Response) {
+    const user = getAuthenticatedUser(req);
+    const projectId = req.params.id as string;
+    try {
+      const dashboard = await dashboardService.getDashboard(user.id, projectId);
+      return res.json(successResponse(dashboard));
+    } catch (error: any) {
+      return res.status(400).json(errorResponse(error.message));
+    }
+  },
+
   async suggestConfig(req: Request, res: Response) {
     const { focus } = req.body;
     if (!focus || !Array.isArray(focus) || focus.length === 0) {
