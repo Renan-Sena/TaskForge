@@ -92,5 +92,8 @@ router.put('/:id/calendar/events/:eventId', authenticateToken, validate(updateEv
 router.delete('/:id/calendar/events/:eventId', authenticateToken, projectController.deleteCalendarEvent);
 router.get('/:id/dashboard', authenticateToken, projectController.getDashboard);
 router.get('/:id/report', authenticateToken, projectController.getProjectReport);
+router.get('/:id/analytics/tasks-over-time', authenticateToken, projectController.analyticsTasksOverTime);
+router.get('/:id/analytics/member-productivity', authenticateToken, projectController.analyticsMemberProductivity);
+router.get('/:id/analytics/status-distribution', authenticateToken, projectController.analyticsStatusDistribution);
 
 export default router;
