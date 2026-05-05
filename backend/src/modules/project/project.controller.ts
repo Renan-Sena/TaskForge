@@ -9,8 +9,43 @@ import { dashboardService } from './dashboard.service.js';
 import { buildPaginationMeta, parsePagination } from '../../utils/pagination.js';
 import { reportService } from './report.service.js';
 import { exportService } from './export.service.js';
+import { analyticsService } from './analytics.service.js';
 
 export const projectController = {
+  async analyticsTasksOverTime(req: Request, res: Response) {
+    const user = getAuthenticatedUser(req);
+    const projectId = req.params.id as string;
+    const granularity = (req.query.granularity as string) === 'month' ? 'month' : 'week';
+    try {
+      const data = await analyticsService.tasksOverTime(projectId, user.id, granularity);
+      return res.json(successResponse(data));
+    } catch (error: any) {
+      return res.status(400).json(errorResponse(error.message));
+    }
+  },
+
+  async analyticsMemberProductivity(req: Request, res: Response) {
+    const user = getAuthenticatedUser(req);
+    const projectId = req.params.id as string;
+    try {
+      const data = await analyticsService.memberProductivity(projectId, user.id);
+      return res.json(successResponse(data));
+    } catch (error: any) {
+      return res.status(400).json(errorResponse(error.message));
+    }
+  },
+
+  async analyticsStatusDistribution(req: Request, res: Response) {
+    const user = getAuthenticatedUser(req);
+    const projectId = req.params.id as string;
+    try {
+      const data = await analyticsService.statusDistribution(projectId, user.id);
+      return res.json(successResponse(data));
+    } catch (error: any) {
+      return res.status(400).json(errorResponse(error.message));
+    }
+  },
+
   async exportTasks(req: Request, res: Response) {
     const user = getAuthenticatedUser(req);
     const projectId = req.params.id as string;
